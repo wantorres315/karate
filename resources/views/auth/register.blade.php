@@ -16,6 +16,18 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
+        <div class="mt-4">
+            <x-input-label for="birth" :value="__('Birth')" />
+            <x-text-input id="birth" class="block mt-1 w-full" type="date" name="birth" :value="old('birth')" required autocomplete="birth" />
+            <x-input-error :messages="$errors->get('birth')" class="mt-2" />
+        </div>
+
+        <div class="mt-4">
+            <x-input-label for="height" :value="__('Height (cm)')" />
+            <x-text-input id="height" class="block mt-1 w-full" type="number" name="height" :value="old('height')" required autocomplete="height" />
+            <x-input-error :messages="$errors->get('height')" class="mt-2" />
+        </div>
+
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />

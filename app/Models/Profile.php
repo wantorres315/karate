@@ -36,5 +36,12 @@ class Profile extends Model
         'contact_email',
         'observations',
         'club_id',
+        'status',
     ];
+
+    public function club()
+    {
+        return $this->belongsTo(Club::class, 'club_id', 'id');
+    }
+    
 }

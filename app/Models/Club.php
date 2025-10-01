@@ -28,4 +28,14 @@ class Club extends Model
         'responsible_telephone_number',
         'responsible_position',
     ];
+
+    public function instructors()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'club_instructors', // tabela pivot
+            'club_id',          // FK em club_instructors para Club
+            'user_id'           // FK em club_instructors para User
+        );
+    }
 }

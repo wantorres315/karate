@@ -6,11 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -45,4 +46,31 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function profile()
+    {
+        return $this->hasOne(Profile::class, 'user_id', 'id');
+    }
+
+    public function lastGraduation()
+    {
+        return $this->hasOne(GraduationUser::class, 'user_id', 'id')
+            ->latestOfMany('date'); // usa a data para pegar a última
+    }
+
+    public function graduations()
+    {
+        return $this->hasMany(GraduationUser::class, 'user_id', 'id');
+    }
+
+    public function clubsAsInstructor()
+    {
+        return $this->belongsToMany(
+            Club::class,
+            'club_instructors', // tabela pivot
+            'user_id',          // FK em club_instructors para User
+            'club_id'           // FK em club_instructors para Club
+        );
+    }
+
 }

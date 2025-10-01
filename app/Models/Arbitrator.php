@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Arbitrator extends Model
 {
-    //
+    protected $fillable = ['name'];
 }

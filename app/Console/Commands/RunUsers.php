@@ -6,10 +6,13 @@ use Illuminate\Console\Command;
 use App\Models\User;
 use App\Models\Profile;
 use App\Models\Arbitrator;
+use App\Models\Club;
 use League\Csv\Reader;
 use League\Csv\Exception;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\Role;
+use App\Permission;
 
 class RunUsers extends Command
 {
@@ -35,18 +38,32 @@ class RunUsers extends Command
             $bar->start();
 
             foreach ($records as $record) {
-
+                $estado = strtolower(trim($record['ESTADO'] ?? 'ativo'));
+                $statusMap = [
+                    'inativo' => 'inactive',
+                    'ativo' => 'active',
+                ];
+                dump( $record['NOME'], $statusMap[$estado] ?? 'active');
                 // 1️⃣ Criar ou atualizar usuário
                 if($record["NOME"]){
 
+                   $email = $record['E-MAIL'] ?? null;
+
+                    // Se não veio email ou já existe no banco, gera um novo único
+                    if (empty($email) || User::where('email', $email)->exists()) {
+                        do {
+                            $email = Str::uuid() . '@example.com';
+                        } while (User::where('email', $email)->exists());
+                    }
+
                     $user = User::updateOrCreate(
-                        ['email' => $record['E-MAIL'] ?? Str::uuid() . '@example.com'],
+                        ['email' => $email],
                         [
                             'name' => $record['NOME'],
-                            'password' => bcrypt('secret'), // senha padrão
+                            'password' => bcrypt(str_replace(".", "",$record['Nº KAK'])),
                         ]
                     );
-    
+
                     // 2️⃣ Criar árbitro, se necessário
                     $arbitratorId = null;
                     if (!empty($record['ÁRBITRO'])) {
@@ -55,19 +72,44 @@ class RunUsers extends Command
                     }
     
                     // 3️⃣ Tratar datas
-                    $birthDate = !empty($record['DATA DE NASCIMENTO']) 
-                        ? Carbon::createFromFormat('d-m-Y', $record['DATA DE NASCIMENTO'])->format('Y-m-d')
-                        : null;
+                    $birthDate = null;
+
+                    if (!empty($record['DATA DE NASCIMENTO'])) {
+                        try {
+                            $date = Carbon::createFromFormat('d-m-Y', $record['DATA DE NASCIMENTO']);
+
+                            // Verifica se houve erros de parsing
+                            $errors = Carbon::getLastErrors();
+                            if ($errors['error_count'] === 0 && $errors['warning_count'] === 0) {
+                                $birthDate = $date->format('Y-m-d');
+                            }
+                        } catch (\Exception $e) {
+                            $birthDate = null;
+                        }
+                    }
     
-                    $admissionDate = !empty($record['ADMISSÃO']) 
-                        ? Carbon::createFromFormat('d-m-Y', $record['ADMISSÃO'])->format('Y-m-d')
-                        : null;
+                    $admissionDate = null;
+
+                    if (!empty($record['ADMISSÃO'])) {
+                        $dateString = $record['ADMISSÃO'];
+
+                        $formats = ['d-m-Y', 'd.m.Y'];
+
+                        foreach ($formats as $format) {
+                            try {
+                                $admissionDate = Carbon::createFromFormat($format, $dateString)->format('Y-m-d');
+                                break; // se deu certo, sai do loop
+                            } catch (\Exception $e) {
+                                continue; // tenta o próximo formato
+                            }
+                        }
+                    }
     
                     // 4️⃣ Criar ou atualizar profile vinculado ao usuário
                     Profile::updateOrCreate(
                         ['user_id' => $user->id],
                         [
-                            'number_kak' => $record['Nº KAK'],
+                            'number_kak' =>  str_replace(".", "",$record['Nº KAK']),
                             'number_fnkp' => $record['FNKP'] ?? null,
                             'number_jks' => $record['Nº JKS'] ?? null,
                             'number_cit' => $record['CIT'] ?? null,
@@ -89,11 +131,35 @@ class RunUsers extends Command
                             'district' => $record['DISTRITO'] ?? null,
                             'credits' => $record['CRÉDITOS'] ?? null,
                             'graduation' => $record['GRADUAÇÃO'] ?? null,
-                            'club_id' => $record
+                            'club_id' => Club::where("id",$record['DOJO'])->first()->id ?? null,
+                            "status" => $statusMap[$estado] ?? 'active',
                         ]
                     );
                 }
+                
+                if($arbitratorId){
+                    $user->assignRole(Role::ARBITRATOR->value);
+                }
 
+                switch ($record['TIPO DE MEMBRO']) {
+                    case 'treinador grau I':
+                        $user->assignRole(Role::TREINADOR_GRAU_I->value);
+                        break;
+                    case 'treinador grau II':
+                        $user->assignRole(Role::TREINADOR_GRAU_II->value);
+                        break;
+                    case 'treinador grau III':
+                        $user->assignRole(Role::TREINADOR_GRAU_III->value);
+                        break;
+                     
+                    case 'praticante':
+                        $user->assignRole(Role::PRATICANTE->value);
+                        break;
+                    default:
+                        $user->assignRole(Role::PRATICANTE->value);
+                        break;
+                }
+                
                 $bar->advance();
             }
 
@@ -104,7 +170,7 @@ class RunUsers extends Command
             $this->error("Erro ao ler o CSV: " . $e->getMessage());
             return 1;
         } catch (\Exception $e) {
-            $this->error("Erro ao salvar dados: " . $e->getMessage());
+            $this->error("Erro ao salvar dados: " . $e->getMessage() . " na linha " . $e->getLine());
             return 1;
         }
 

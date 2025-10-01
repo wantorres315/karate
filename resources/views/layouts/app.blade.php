@@ -1,99 +1,121 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="{ sidenavOpen: false }" x-cloak>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="{{ csrf_token() }}" /> 
+<link rel="manifest" href="{{ asset('manifest.json') }}">
+<meta name="theme-color" content="#4F46E5">
+  <title>{{ config('app.name', 'Laravel') }}</title>
+  
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+   <!-- Fonts and icons -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
 
-    <!-- Fonts -->
+    <!-- Nucleo Icons -->
+    <link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
+
+    <!-- Tom Select -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+    <!-- Font Awesome nova versão -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <!-- Main Styling -->
+    <link href="{{ asset('assets/css/argon-dashboard-tailwind.css') }}" rel="stylesheet" />
+
+    <!-- Fonts Laravel -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-    <!-- Bootstrap + Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-
-    <!-- Mazer CSS -->
-    <link rel="stylesheet" href="https://zuramai.github.io/mazer/demo/assets/compiled/css/app.css">
-    <link rel="stylesheet" href="https://zuramai.github.io/mazer/demo/assets/compiled/css/app-dark.css">
-
-    <!-- Scripts -->
+    
+    @stack('styles')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="font-sans antialiased">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <div id="app">
+  <!-- CSS externos primeiro -->
+  <link rel="stylesheet" href="{{ asset('assets/css/nucleo-icons.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/nucleo-svg.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/argon-dashboard-tailwind.css') }}" />
+  <!-- Tailwind CSS por último -->
 
-        {{-- Sidebar Mazer --}}
-        <div id="sidebar" class="active">
-            <div class="sidebar-wrapper active">
-                <div class="sidebar-header">
-                    <h3 class="text-center">{{ config('app.name', 'Laravel') }}</h3>
+  <!-- Scripts -->
+
+  @stack('head')
+
+  <!-- x-cloak CSS -->
+  <style>[x-cloak] { display: none !important; }</style>
+</head> 
+
+<body class="min-h-screen flex flex-col m-0 font-sans text-base antialiased font-normal leading-default bg-brand-white text-brand-preto">
+
+  <!-- Navbar preta -->
+  <div class="w-full !bg-brand-preto min-h-25"  style="background: #262626">
+    <nav class="relative flex flex-wrap items-center justify-between px-0 py-2 mx-6 shadow-none rounded-2xl" navbar-main>
+      <div class="flex items-center justify-between w-full px-4 py-1 mx-auto">
+        <div class="flex items-center mt-2 grow sm:mt-0 sm:mr-6 md:mr-0">
+          <ul class="flex flex-row justify-end pl-0 mb-0 list-none w-full">
+            @include('layouts.user-dropdown')
+            <li class="flex items-center pl-4 xl:hidden">
+              <button @click="sidenavOpen = true" class="block p-0 text-sm text-brand-white">
+                <div class="w-4.5">
+                  <i class="block h-0.5 rounded-sm !bg-brand-white mb-1"></i>
+                  <i class="block h-0.5 rounded-sm !bg-brand-white mb-1"></i>
+                  <i class="block h-0.5 rounded-sm !bg-brand-white"></i>
                 </div>
-                <div class="sidebar-menu">
-                    <ul class="menu">
-                        <li class="sidebar-item active">
-                            <a href="{{ route('dashboard') }}" class="sidebar-link">
-                                <i class="bi bi-speedometer2"></i>
-                                <span>Dashboard</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="#" class="sidebar-link">
-                                <i class="bi bi-people"></i>
-                                <span>Usuários</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="#" class="sidebar-link">
-                                <i class="bi bi-bar-chart"></i>
-                                <span>Relatórios</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+              </button>
+            </li>
+          </ul>
         </div>
+      </div>
+    </nav>
+  </div>
 
-        {{-- Main Content --}}
-        <div id="main" class="layout-navbar">
-            {{-- Navbar --}}
-            <header class="mb-3">
-                <nav class="navbar navbar-expand navbar-light bg-light shadow-sm">
-                    <div class="container-fluid">
-                        <a href="#" class="burger-btn d-block d-xl-none">
-                            <i class="bi bi-list fs-3"></i>
-                        </a>
-
-                        <div class="ms-auto d-flex align-items-center">
-                            <span class="me-3 fw-semibold">{{ Auth::user()->name ?? 'Guest' }}</span>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button class="btn btn-outline-danger btn-sm">Sair</button>
-                            </form>
-                        </div>
-                    </div>
-                </nav>
-            </header>
-
-            {{-- Page Heading --}}
-            @isset($header)
-                <div class="page-heading px-4">
-                    {{ $header }}
-                </div>
-            @endisset
-
-            {{-- Page Content --}}
-            <div class="page-content px-4">
-                {{ $slot }}
-            </div>
-        </div>
+  <!-- Sidenav preta -->
+  <aside style="background: #262626"
+    class="fixed inset-y-0 left-0 z-[999] flex-wrap justify-between block w-full max-w-64 p-0 my-4 antialiased transition-transform duration-200 !bg-brand-preto shadow-xl xl:translate-x-0 xl:ml-6 xl:block rounded-2xl"
+    :class="{ '-translate-x-full xl:translate-x-0': !sidenavOpen }"
+  >
+    <div class="h-19 relative">
+      <button @click="sidenavOpen = false" class="absolute top-0 right-0 p-4 opacity-50 cursor-pointer text-brand-gray xl:hidden">
+        <i class="fas fa-times !text-brand-white"></i>
+      </button>
+      <a class="block px-8 py-6 text-sm whitespace-nowrap !text-brand-white">
+        <img src="{{ asset('images/logo_branco.png') }}" class="inline max-h-8" alt="logo" />
+      </a>
     </div>
 
-    {{-- Bootstrap + Mazer JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://zuramai.github.io/mazer/demo/assets/static/js/initTheme.js"></script>
+    <hr class="h-px bg-gradient-to-r from-transparent via-brand-gray to-transparent" />
+
+    @include('layouts.navigation')
+  </aside>
+
+  <!-- Conteúdo principal (centro branco) -->
+  <main class="flex-1 relative xl:ml-68 transition-all rounded-xl">
+    <div class="w-full px-6 py-6 mx-auto">
+      <section class="mt-4 p-6 !bg-brand-white !text-brand-preto rounded-xl shadow-md">
+        {{ $slot }}
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer preto -->
+  <footer class="p-4 mt-6 !bg-brand-preto text-white text-center" style="background: #262626">
+    &copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. Todos os direitos reservados.
+  </footer>
+
+  <!-- Scripts -->
+  @stack('scripts')
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register("{{ asset('service-worker.js') }}")
+    .then(reg => console.log("SW registrado:", reg))
+    .catch(err => console.error("Erro SW:", err));
+}
+</script>
+
 </body>
 </html>

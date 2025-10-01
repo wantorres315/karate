@@ -20,13 +20,13 @@ return new class extends Migration
             $table->string("number_tptd")->nullable();
             $table->string("number_jks")->nullable();
             $table->foreignId('arbitrator_id')->nullable()->index();
-            $table->date("admission_date");
+            $table->date("admission_date")->nullable();
             $table->text("photo")->nullable();
-            $table->string("father_name");
-            $table->string("mother_name");
+            $table->string("father_name")->nullable();
+            $table->string("mother_name")->nullable();
             $table->string("document_type")->nullable();
             $table->string("document_number")->nullable();
-            $table->date("birth_date");
+            $table->date("birth_date")->nullable();
             $table->string("nationality")->nullable();
             $table->string("profession")->nullable();
             $table->string("address")->nullable();
@@ -41,7 +41,7 @@ return new class extends Migration
             $table->string("contact_cell")->nullable();
             $table->string("contact_email")->nullable();
             $table->text("observations")->nullable();
-            $table->foreignId("club_id")->index();
+            $table->foreignId("club_id")->nullable()->index();
             
 
             $table->timestamps();
