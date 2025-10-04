@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class GraduationUser extends Model
 {
     protected $fillable = [
-        'user_id',
+        'profile_id',
         'graduation_id',
         'date',
         'value',

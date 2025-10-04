@@ -12,12 +12,55 @@
             
             {{-- Foto --}}
             <div class="flex-shrink-0 flex flex-col items-center space-y-2 w-full md:w-32">
-                <div class="w-32 h-32 rounded-full overflow-hidden border border-gray-300">
-                    <img id="photoPreview" src="{{ asset('images/club.png') }}" alt="Preview Foto" class="w-full h-full object-cover">
+                <x-input-label for="photo" :value="__('Foto de Perfil')" />
+                <div style="display:flex; flex-direction: column; align-items: center; gap: 10px;">
+                    @php
+                        $userPhoto = ($user->photo && $user->photo !== 'default.png') 
+                                    ? $user->photo 
+                                    : asset('assets/avatars/default.png');
+                        $cameraButtonText = ($user->photo && $user->photo !== 'default.png') 
+                                            ? 'Foto via Webcam' 
+                                            : 'Tirar Minha Foto';
+                    @endphp
+
+                    <div class="flex flex-col items-center space-y-4">
+                        <!-- Foto do usuário -->
+                        <img id="photoPreview" src="{{ $userPhoto }}" alt="Foto do usuário"
+                            onerror="this.onerror=null; this.src='{{ asset('assets/avatars/default.png') }}'"
+                            class="rounded-full w-60 h-60 object-cover border-2 border-gray-300">
+
+                        <!-- Container da câmera (começa escondido) -->
+                        <div id="cameraContainer" class="hidden">
+                            <video id="video" autoplay playsinline
+                                class="rounded-full w-60 h-60 object-cover border-2 border-gray-300 bg-gray-100"></video>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="flex flex-col space-y-2 w-full items-center">
+                            <!-- Iniciar câmera -->
+                            <button type="button" id="startCameraBtn"
+                                class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700">
+                                {{ $cameraButtonText }}
+                            </button>
+
+                            <!-- Capturar foto (começa escondido) -->
+                            <button type="button" id="captureBtn"
+                                class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 hidden">
+                                Capturar Foto
+                            </button>
+
+                            <!-- Enviar foto -->
+                            <button type="button" id="uploadPhotoBtn"
+                                class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700">
+                                Enviar Foto
+                            </button>
+
+                            <input type="file" id="fileInput" accept="image/*" class="hidden">
+                        </div>
+                    </div>
+
                 </div>
-                <input type="file" name="photo" accept="image/*" capture="user" onchange="previewPhoto(event)"
-                    class="text-sm text-gray-500 file:border-0 file:bg-gray-200 file:px-3 file:py-1 file:rounded-md file:cursor-pointer">
-                <button type="button" onclick="openCamera()" class="text-sm bg-blue-500 text-white px-2 py-1 rounded-md">Usar Câmera</button>
+                <input type="hidden" name="photo_data" id="photo_data" />
             </div>
 
             {{-- Campos principais do usuário --}}

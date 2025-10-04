@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Club;
+use App\Role;
 
 class RunInstructor extends Command
 {
@@ -62,6 +63,7 @@ class RunInstructor extends Command
                     ],
                     [] // sem campos adicionais, só garante a existência
                 );
+                $user->assignRole(Role::TREINADOR_GRAU_I->value);
 
                 $bar->advance();
             }

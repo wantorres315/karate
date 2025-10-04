@@ -11,61 +11,98 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\Models\Graduation;
 use App\Models\GraduationUser;
+use Illuminate\Support\Facades\Storage;
 
 
 class StudentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::with(['profile.club', 'lastGraduation.graduation']);
-        if (!auth()->user()->hasRole(Role::SUPER_ADMIN->value)) {
-            if (
-                auth()->user()->hasRole(Role::TREINADOR_GRAU_I->value) ||
-                auth()->user()->hasRole(Role::TREINADOR_GRAU_II->value) ||
-                auth()->user()->hasRole(Role::TREINADOR_GRAU_III->value) ||
-                auth()->user()->hasRole(Role::ARBITRATOR->value)
-            ) {
-                $clubIds = auth()->user()->clubsAsInstructor()->pluck('clubs.id'); // pega IDs dos clubes do instrutor
-                $query->whereHas('profile', function ($q) use ($clubIds) {
+        $graduacoes = Graduation::all();
+
+        $query = User::with(['profiles.club', 'profiles.lastGraduation.graduation']);
+        $user = auth()->user();
+
+        if (!$user->hasRole(Role::SUPER_ADMIN->value)) {
+           if ($user->hasRole(Role::PRATICANTE->value)) {
+                 $query->where('id', $user->id);
+            } elseif ($user->hasAnyRole([
+                Role::TREINADOR_GRAU_I->value,
+                Role::TREINADOR_GRAU_II->value,
+                Role::TREINADOR_GRAU_III->value,
+                Role::ARBITRATOR->value,
+            ])) {
+                $clubIds = auth()->user()->clubsAsInstructor()->pluck('clubs.id');
+                $query->whereHas('profiles', function ($q) use ($clubIds) {
                     $q->whereIn('club_id', $clubIds);
                 });
             }
         }
-        // 🔍 Filtro por nome
+
+        // 🔍 Filtros
         if ($request->filled('nome')) {
-            $query->where('name', 'like', '%' . $request->nome . '%');
+            $query->whereHas('profiles', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->nome . '%');
+            });
         }
 
-        // 🔍 Filtro por número KAK
         if ($request->filled('number_kak')) {
-            $query->whereHas('profile', function ($q) use ($request) {
+            $query->whereHas('profiles', function ($q) use ($request) {
                 $q->whereRaw("REPLACE(number_kak, '.', '') LIKE ?", ['%' . str_replace('.', '', $request->number_kak) . '%']);
             });
         }
 
-        // 🔍 Filtro por clube
         if ($request->filled('clube')) {
-            $query->whereHas('profile.club', function ($q) use ($request) {
+            $query->whereHas('profiles.club', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->clube . '%');
             });
         }
-       
-        $alunos = $query->orderBy("id", "desc")->paginate(10)->through(function ($user) {
-            return [
-                'id' => $user->id,
-                'nome' => $user->name,
-                'email' => $user->email,
-                'clube' => $user->profile->club ? $user->profile->club->acronym : 'No Club',
-                'clube_name' => $user->profile->club ? $user->profile->club->name : 'No Club',
-                'number_kak' => $user->profile->number_kak,
-                'graduacao' => $user->lastGraduation?->graduation->name ?? 'Sem graduação',
-                'graduacao_data' => $user->lastGraduation?->date,
-                'graduacao_color' => $user->lastGraduation?->graduation->color ?? '#ccc',
-            ];
-        });
-        
-        return view('student.index', compact('alunos'));
+
+        if ($request->filled('graduacao_id')) {
+            $query->whereHas('profiles.lastGraduation', function ($q) use ($request) {
+                $q->where('graduation_id', $request->graduacao_id);
+            });
+        }
+
+        // Paginação
+        $users = $query->orderBy("id", "desc")->get();
+
+        $alunos = collect();
+        foreach ($users as $user) {
+            foreach ($user->profiles as $profile) {
+                $alunos->push([
+                    'user_id' => $user->id,
+                    'profile_id' => $profile->id,
+                    'nome' => $profile->name,
+                    'user_email' => $user->email,
+                    'clube' => $profile->club ? $profile->club->acronym : 'No Club',
+                    'clube_name' => $profile->club ? $profile->club->name : 'No Club',
+                    'number_kak' => $profile->number_kak,
+                    'graduacao' => $profile->lastGraduation?->graduation->name ?? 'Sem graduação',
+                    'graduacao_data' => $profile->lastGraduation?->date,
+                    'graduacao_color' => $profile->lastGraduation?->graduation->color ?? '#ccc',
+                ]);
+            }
+        }
+
+        $page = $request->get('page', 1);
+        $perPage = 10;
+        $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $alunos->forPage($page, $perPage),
+            $alunos->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return view('student.index', [
+            'alunos' => $paginated,
+            'graduacoes' => $graduacoes,
+        ]);
     }
+
+
+
 
     public function create()
     {
@@ -111,9 +148,54 @@ class StudentController extends Controller
         ]);
 
         // Upload da foto
-        $photoPath = null;
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('profiles', 'public');
+        if ($request->filled('photo_data')) {
+            try {
+                $photoData = $request->input('photo_data');
+
+                if (preg_match('/^data:image\/(\w+);base64,/', $photoData, $type)) {
+                    $photoData = substr($photoData, strpos($photoData, ',') + 1);
+                    $type = strtolower($type[1]); // jpg, png, gif
+
+                    if (!in_array($type, ['jpg', 'jpeg', 'png', 'gif'])) {
+                        return Redirect::back()->withErrors(['photo_data' => 'Formato de imagem inválido.']);
+                    }
+
+                    $photoData = base64_decode($photoData);
+
+                    if ($photoData === false) {
+                        return Redirect::back()->withErrors(['photo_data' => 'Erro ao decodificar imagem.']);
+                    }
+
+                    // Garante que o diretório existe
+                    $directory = 'profile_photos';
+                    if (!Storage::exists($directory)) {
+                        Storage::disk('public')->makeDirectory($directory, 0755, true);
+                    }
+                    
+                    $fileName = 'profile_' . $user->id . '_' . time() . '.' . $type;
+                    $filePath = $directory . '/' . $fileName;
+                    
+                    // Salva usando o disco 'public' e o método put()
+                    if (Storage::disk('public')->put($filePath, $photoData)) {
+                        // Remove a foto antiga se existir
+                        if ($user->photo) {
+                            $oldPhotoPath = str_replace('/storage/', 'public/', $user->photo);
+                            if (Storage::disk('public')->exists($oldPhotoPath)) {
+                                Storage::disk('public')->delete($oldPhotoPath);
+                            }
+                        }
+                        // Salva o caminho relativo para a nova foto
+                        $user->photo = '/storage/profile_photos/' . $fileName;
+                    } else {
+                        throw new \Exception('Falha ao salvar a imagem.');
+                    }
+                } else {
+                    return Redirect::back()->withErrors(['photo_data' => 'Formato de imagem inválido.']);
+                }
+            } catch (\Exception $e) {
+                \Log::error('Erro ao salvar a foto de perfil: ' . $e->getMessage());
+                return Redirect::back()->withErrors(['photo_data' => 'Erro ao processar a imagem. Por favor, tente novamente.']);
+            }
         }
 
         $clubId = str_pad($request->club_id, 2, 0, STR_PAD_LEFT);
@@ -169,22 +251,19 @@ class StudentController extends Controller
                          ->with('success', 'Usuário e perfil criados com sucesso!');
     }
 
-    public function edit($id)
+    public function edit( Profile $profile)
     {
         $clubs = Club::all();
-        $user = User::with('profile.club')->findOrFail($id);
-
-        return view('student.edit', compact('user', 'clubs'));
+        $profile->load("user");
+        return view('student.edit', compact('profile', 'clubs'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Profile $profile)
     {
-        $user = User::with('profile')->findOrFail($id);
 
         // Validação dos dados
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'photo' => 'nullable|image|max:2048',
             'number_kak' => 'nullable|string|max:255',
             'number_fnkp' => 'nullable|string|max:255',
@@ -209,23 +288,36 @@ class StudentController extends Controller
         ]);
 
         $photoPath = null;
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('profiles', 'public');
-            // Remove a foto antiga se existir
-            if ($user->profile->photo) {
-                \Storage::disk('public')->delete($user->profile->photo);
+        if ($request->filled('photo_data')) {
+            $photoData = $request->input('photo_data');
+            if (preg_match('/^data:image\/(\w+);base64,/', $photoData, $type)) {
+                $photoData = substr($photoData, strpos($photoData, ',') + 1);
+                $type = strtolower($type[1]);
+                $photoData = base64_decode($photoData);
+
+                $directory = 'profile_photos';
+                if (!Storage::disk('public')->exists($directory)) {
+                    Storage::disk('public')->makeDirectory($directory, 0755, true);
+                }
+
+                $fileName = 'profile_' . $profile->id . '_' . time() . '.' . $type;
+                $filePath = $directory . '/' . $fileName;
+                Storage::disk('public')->put($filePath, $photoData);
+
+                // Apaga foto antiga
+                if($profile->photo){
+                    $old = str_replace('/storage/','public/',$profile->photo);
+                    Storage::disk('public')->delete($old);
+                }
+
+                $photo = '/storage/' . $filePath;
             }
         }
 
-        // Atualiza os dados do usuário
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-        ]);
-
+       
         // Atualiza os dados do perfil
-        $user->profile->update([
-            'number_kak' => $request->number_kak,
+        $profile->update([
+            'name' => $request->name,
             'number_fnkp' => $request->number_fnkp,
             'admission_date' => $request->admission_date,
             'father_name' => $request->father_name,
@@ -244,11 +336,11 @@ class StudentController extends Controller
             'contact_number' => $request->contact_number,
             'contact_email' => $request->contact_email,
             'observations' => $request->observations,
-            'club_id' => $request->club_id,
-            'photo' => $photoPath ?? $user->profile->photo,
+            'club_id' => $request->club_id ?? $profile->club_id,
+            'photo' => $photo ?? $profile->photo,
         ]);
 
-        return redirect()->route('student.edit', $user->id)
+        return redirect()->route('student.edit', $profile->id)
                          ->with('success', 'Usuário e perfil atualizados com sucesso!');
     }
 
@@ -279,18 +371,18 @@ class StudentController extends Controller
                          ->with('success', 'Usuário e perfil deletados com sucesso!');
     }
 
-    public function graduations(User $user)
+    public function graduations(Profile $profile)
     {
-        $graduacoes = $user->graduations()
+        $graduacoes = $profile->graduations()
             ->with('graduation')
             ->orderByDesc('date')
             ->get();
 
         $todasGraduacoes = Graduation::all();
-        return view('student.graduation', compact('user', 'graduacoes', 'todasGraduacoes'));
+        return view('student.graduation', compact('profile', 'graduacoes', 'todasGraduacoes'));
     }
 
-    public function addGraduation(Request $request, User $user)
+    public function addGraduation(Request $request, Profile $profile)
     {
         $request->validate([
             'graduation_id' => 'required|exists:graduations,id',
@@ -298,7 +390,7 @@ class StudentController extends Controller
         ]);
 
         GraduationUser::create([
-            'user_id' => $user->id,
+            'profile_id' => $profile->id,
             'graduation_id' => $request->graduation_id,
             'date' => $request->date,
             'value' => $request->value,
@@ -308,15 +400,15 @@ class StudentController extends Controller
             'location' => $request->location,
         ]);
 
-        return redirect()->route('student.graduations', $user)
+        return redirect()->route('student.graduations', $profile)
             ->with('success', 'Graduação adicionada com sucesso!');
     }
 
-    public function removeGraduation(User $user, GraduationUser $graduationUser)
+    public function removeGraduation(Profile $profile, GraduationUser $graduationUser)
     {
         $graduationUser->delete();
 
-        return redirect()->route('student.graduations', $user)
+        return redirect()->route('student.graduations', $profile)
             ->with('success', 'Graduação removida com sucesso!');
     }
 }

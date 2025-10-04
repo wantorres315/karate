@@ -64,10 +64,10 @@ class RunGraduations extends Command
                         }
                     }
                 }
-                $userId = Profile::where("number_kak", str_replace(".", "", $data['MEMBRO']))->first()->user_id ?? null;
+                $profileId = Profile::where("number_kak", str_replace(".", "", $data['MEMBRO']))->first()->id ?? null;
                 $graduation = Graduation::where("name", $data['GRADUACAO'])->first() ?? null;
                 // Insere no banco
-                if (!$userId) {
+                if (!$profileId) {
                     $this->error("Usuário não encontrado para MEMBRO: " . $data['MEMBRO']);
                     continue; // pula para o próximo registro
                 }
@@ -76,7 +76,7 @@ class RunGraduations extends Command
                     continue; // pula para o próximo registro
                 }
                 GraduationUser::updateOrCreate([
-                    'user_id' => $userId,
+                    'profile_id' => $profileId,
                     'graduation_id' => Graduation::where("name", $data['GRADUACAO'])->first()->id,
                 ],[
                     'date' => $date,

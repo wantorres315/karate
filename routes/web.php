@@ -6,6 +6,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\PdfController;
 use Illuminate\Support\Facades\File; 
+use App\Http\Controllers\GraduationController;
+use App\Http\Controllers\ClubController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -54,16 +57,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', 'index')->name('student.index');
         Route::get('/create', 'create')->name('student.create');
         Route::post('/', 'store')->name('student.store');
-        Route::get('/{id}/edit', 'edit')->name('student.edit');
-        Route::put('/{id}', 'update')->name('student.update');
+        Route::get('/{profile}/edit', 'edit')->name('student.edit');
+        Route::put('/{profile}', 'update')->name('student.update');
         Route::delete('/{id}', 'destroy')->name('student.destroy');
-        Route::get('/{user}/graduations', 'graduations')->name('student.graduations');
-        Route::post('/{user}/graduations', 'addGraduation')->name('student.addGraduation');
-        Route::delete('/{user}/graduations/{graduationUser}', 'removeGraduation')->name('student.removeGraduation');
+        Route::get('/{profile}/graduations', 'graduations')->name('student.graduations');
+        Route::post('/{profile}/graduations', 'addGraduation')->name('student.addGraduation');
+        Route::delete('/{profile}/graduations/{graduationUser}', 'removeGraduation')->name('student.removeGraduation');
     });
 
+    Route::resource('graduations', GraduationController::class);
+    Route::resource('clubs', ClubController::class);
+
     Route::post('/check-email', [StudentController::class, 'checkEmail'])->name('check-email');
-    Route::get('/member-pdf/{user}', [PdfController::class, 'memberPdf'])->name('member.pdf');
+    Route::get('/member-pdf/{profile}', [PdfController::class, 'memberPdf'])->name('member.pdf');
 
 });
 

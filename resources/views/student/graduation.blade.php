@@ -1,11 +1,10 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">
-            Graduações de {{ $user->name }}
-        </h2>
-    </x-slot>
+        
 
     <div class="py-6">
+         <div class="mb-4 p-4 rounded bg-green-100 text-green-800">
+            Graduações de {{ $profile->name }}
+        </div>
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             {{-- ALERTAS --}}
@@ -16,9 +15,6 @@
             @endif
 
             {{-- LISTA --}}
-            <div class="mb-4 p-4 rounded bg-green-100 text-green-800">
-                    {{ $user->name }}
-                </div>
             <div class="bg-white shadow rounded-lg p-4 mb-6">
                 <table class="min-w-full border">
                     <thead class="bg-gray-100">
@@ -29,7 +25,15 @@
                             <th class="px-3 py-2 border">Kata</th>
                             <th class="px-3 py-2 border">Kumite</th>
                             <th class="px-3 py-2 border">Local</th>
+                             @if(auth()->user()->hasAnyRole([
+                                        App\Role::TREINADOR_GRAU_I->value,
+                                        App\Role::TREINADOR_GRAU_II->value,
+                                        App\Role::TREINADOR_GRAU_III->value,
+                                        App\Role::ARBITRATOR->value,
+                                        App\Role::SUPER_ADMIN->value,
+                                    ]))
                             <th class="px-3 py-2 border">Ações</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -44,13 +48,22 @@
                                 <td class="px-3 py-2 border">{{ $g->kata ?? '-' }}</td>
                                 <td class="px-3 py-2 border">{{ $g->kumite ?? '-' }}</td>
                                 <td class="px-3 py-2 border">{{ $g->location ?? '-' }}</td>
+                                @if(auth()->user()->hasAnyRole([
+                                        App\Role::TREINADOR_GRAU_I->value,
+                                        App\Role::TREINADOR_GRAU_II->value,
+                                        App\Role::TREINADOR_GRAU_III->value,
+                                        App\Role::ARBITRATOR->value,
+                                        App\Role::SUPER_ADMIN->value,
+                                    ]))
                                 <td class="px-3 py-2 border">
-                                    <form action="{{ route('student.removeGraduation', [$user, $g]) }}" method="POST" onsubmit="return confirm('Tem certeza?')">
+                                    
+                                    <form action="{{ route('student.removeGraduation', [$profile->id, $g->id]) }}" method="POST" onsubmit="return confirm('Tem certeza?')">
                                         @csrf
                                         @method('DELETE')
                                         <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">Excluir</button>
                                     </form>
                                 </td>
+                                @endif
                             </tr>
                         @empty
                             <tr>
@@ -60,14 +73,19 @@
                     </tbody>
                 </table>
             </div>
-
+@if(auth()->user()->hasAnyRole([
+        App\Role::TREINADOR_GRAU_I->value,
+        App\Role::TREINADOR_GRAU_II->value,
+        App\Role::TREINADOR_GRAU_III->value,
+        App\Role::ARBITRATOR->value,
+        App\Role::SUPER_ADMIN->value,
+    ]))
             {{-- FORM --}}
             <div class="bg-white shadow rounded-lg p-4">
                 <h3 class="font-semibold mb-3">Adicionar Graduação</h3>
-                <form action="{{ route('student.addGraduation', $user->id) }}" method="POST">
+                <form action="{{ route('student.addGraduation', $profile->id) }}" method="POST">
                     @csrf
 
-                    {{-- PRIMEIRA LINHA: Graduação, Data, Valor --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                         <div>
                             <label class="block mb-1">Graduação</label>
@@ -82,10 +100,8 @@
                             <label class="block mb-1">Data</label>
                             <input type="date" name="date" class="w-full border rounded px-2 py-1" required>
                         </div>
-                        
                     </div>
 
-                    {{-- SEGUNDA LINHA: Kihon, Kata, Kumite --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                         <div>
                             <label class="block mb-1">Valor</label>
@@ -95,9 +111,8 @@
                             <label class="block mb-1">Kihon</label>
                             <input type="text" name="kihon" class="w-full border rounded px-2 py-1">
                         </div>
-                        
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                         <div>
                             <label class="block mb-1">Kata</label>
@@ -108,7 +123,7 @@
                             <input type="text" name="kumite" class="w-full border rounded px-2 py-1">
                         </div>
                     </div>
-                    {{-- TERCEIRA LINHA: Local --}}
+
                     <div class="mb-3">
                         <label class="block mb-1">Local</label>
                         <input type="text" name="location" class="w-full border rounded px-2 py-1">
@@ -119,7 +134,7 @@
                     </button>
                 </form>
             </div>
-
+@endif
 
         </div>
     </div>

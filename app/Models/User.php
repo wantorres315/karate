@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use App\Models\Profile;
+use App\Models\GraduationUser;
+use App\Models\Club;
+use App\Role;
 
 class User extends Authenticatable
 {
@@ -47,16 +51,12 @@ class User extends Authenticatable
         ];
     }
 
-    public function profile()
+    public function profiles()
     {
-        return $this->hasOne(Profile::class, 'user_id', 'id');
+        return $this->hasMany(Profile::class);
     }
 
-    public function lastGraduation()
-    {
-        return $this->hasOne(GraduationUser::class, 'user_id', 'id')
-            ->latestOfMany('date'); // usa a data para pegar a última
-    }
+    
 
     public function graduations()
     {
@@ -72,5 +72,37 @@ class User extends Authenticatable
             'club_id'           // FK em club_instructors para Club
         );
     }
+
+    public function scopeVisibleStudents($query)
+    {
+        $user = auth()->user();
+
+        // 🔓 super admin vê tudo
+        if ($user->hasRole(Role::SUPER_ADMIN->value)) {
+            return $query;
+        }
+
+        // 👨‍🏫 se for treinador/árbitro → tem prioridade sobre praticante
+        if (
+            $user->hasRole(Role::TREINADOR_GRAU_I->value) ||
+            $user->hasRole(Role::TREINADOR_GRAU_II->value) ||
+            $user->hasRole(Role::TREINADOR_GRAU_III->value) ||
+            $user->hasRole(Role::ARBITRATOR->value)
+        ) {
+            $clubIds = $user->clubsAsInstructor()->pluck('clubs.id');
+            return $query->whereHas('profile', function ($q) use ($clubIds) {
+                $q->whereIn('club_id', $clubIds);
+            });
+        }
+
+        // 🚫 se só for praticante (sem nenhuma outra role relevante)
+        if ($user->hasRole(Role::PRATICANTE->value)) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        // caso padrão → não retorna nada
+        return $query->whereRaw('1 = 0');
+    }
+
 
 }

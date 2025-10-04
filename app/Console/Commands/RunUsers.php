@@ -43,26 +43,37 @@ class RunUsers extends Command
                     'inativo' => 'inactive',
                     'ativo' => 'active',
                 ];
-                dump( $record['NOME'], $statusMap[$estado] ?? 'active');
+                
                 // 1️⃣ Criar ou atualizar usuário
                 if($record["NOME"]){
 
-                   $email = $record['E-MAIL'] ?? null;
+                   $name = trim($record["NOME"] ?? 'usuario');
 
-                    // Se não veio email ou já existe no banco, gera um novo único
-                    if (empty($email) || User::where('email', $email)->exists()) {
-                        do {
-                            $email = Str::uuid() . '@example.com';
-                        } while (User::where('email', $email)->exists());
+                    // Se email não veio, gera automaticamente
+                    $email = trim($record['E-MAIL']);
+                    if (empty($email)) {
+                        $emailBase = Str::of($name)->lower()->replace(' ', '_');
+                        $email = $emailBase . '@kazeido.com';
+                        
+                        // Garante que seja único
+                        $counter = 1;
+                        $originalEmail = $email;
+                        while (User::where('email', $email)->exists()) {
+                            $email = Str::before($originalEmail, '@') . $counter . '@' . Str::after($originalEmail, '@');
+                            $counter++;
+                        }
                     }
 
-                    $user = User::updateOrCreate(
+                    // Verifica se já existe usuário
+                    $user = User::firstOrCreate(
                         ['email' => $email],
                         [
-                            'name' => $record['NOME'],
-                            'password' => bcrypt(str_replace(".", "",$record['Nº KAK'])),
+                            'name' => $name,
+                            'password' => bcrypt(str_replace(".", "", $record['Nº KAK'])),
                         ]
                     );
+
+                    $userId = $user->id;
 
                     // 2️⃣ Criar árbitro, se necessário
                     $arbitratorId = null;
@@ -106,17 +117,18 @@ class RunUsers extends Command
                     }
     
                     // 4️⃣ Criar ou atualizar profile vinculado ao usuário
-                    Profile::updateOrCreate(
-                        ['user_id' => $user->id],
+                    Profile::create(
                         [
+                            'user_id' => $userId,
+                            "name" => $record["NOME"],
                             'number_kak' =>  str_replace(".", "",$record['Nº KAK']),
                             'number_fnkp' => $record['FNKP'] ?? null,
                             'number_jks' => $record['Nº JKS'] ?? null,
                             'number_cit' => $record['CIT'] ?? null,
                             'number_tptd' => $record['TPTD'] ?? null,
                             'arbitrator_id' => $arbitratorId,
-                            'document_type' => $record['DOC. IDENTIFICAÇÃO'] ?? null,
-                            'document_number' => $record['Nº IDENTIFICAÇÃO'] ?? null,
+                            'document_type' => $record['DOCIDENTIFICACAO'] ?? null,
+                            'document_number' => $record['NIDENTIFICACAO'] ?? null,
                             'birth_date' => $birthDate,
                             'father_name' => $record['NOME PAI'] ?? null,
                             'mother_name' => $record['NOME MÃE'] ?? null,
@@ -140,6 +152,10 @@ class RunUsers extends Command
                 if($arbitratorId){
                     $user->assignRole(Role::ARBITRATOR->value);
                 }
+                
+                if($user->email == "rmpsilva@gmail.com"){
+                    $user->assignRole(Role::SUPER_ADMIN->value);
+                }
 
                 switch ($record['TIPO DE MEMBRO']) {
                     case 'treinador grau I':
@@ -159,7 +175,7 @@ class RunUsers extends Command
                         $user->assignRole(Role::PRATICANTE->value);
                         break;
                 }
-                
+                dump($record["NOME"], $email);
                 $bar->advance();
             }
 

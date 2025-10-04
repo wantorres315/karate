@@ -1,270 +1,277 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-semibold text-2xl text-gray-800 dark:text-gray-100 leading-tight">
             {{ __('Criar Usuário e Perfil') }}
         </h2>
     </x-slot>
 
-    <form action="{{ route('student.update', $user->id) }}" method="POST" enctype="multipart/form-data" class="p-4 space-y-6">
+    <form 
+        action="{{ route('student.update', $profile->id) }}" 
+        method="POST" 
+        enctype="multipart/form-data"
+        class="p-6 bg-white dark:bg-gray-800 shadow-lg rounded-xl space-y-8"
+    >
         @csrf
         @method('PUT')
-        {{-- Seção de foto + dados do usuário --}}
-            
+
+        {{-- Foto + Dados do Usuário --}}
+        <div class="flex flex-col md:flex-row gap-8 items-start md:items-center">
             {{-- Foto --}}
-            <div class="flex-shrink-0 flex flex-col items-center space-y-2 w-full md:w-32">
-                <div class="w-32 h-32 rounded-full overflow-hidden border border-gray-300">
-                   <img id="photoPreview" src="{{ $user->profile->photo ? asset('storage/' . $user->profile->photo) : asset('images/club.png') }}" class="w-full h-full object-cover">
+            <div class="flex flex-col items-center gap-4 w-full md:w-1/3">
+                @php
+                    $profilePhoto = ($profile->photo && $profile->photo !== 'default.png') 
+                                ? $profile->photo 
+                                : asset('assets/avatars/default.png');
+                    $cameraButtonText = ($profile->photo && $profile->photo !== 'default.png') 
+                                        ? 'Foto via Webcam' 
+                                        : 'Tirar Minha Foto';
+                @endphp
+
+                <div class="flex flex-col items-center gap-4">
+                    <!-- Foto -->
+                    <img 
+                        id="photoPreview"
+                        src="{{ $profilePhoto }}"
+                        alt="Foto do usuário"
+                        onerror="this.onerror=null; this.src='{{ asset('assets/avatars/default.png') }}'"
+                        class="rounded-full w-56 h-56 object-cover border-4 border-gray-300 dark:border-gray-600 shadow-md"
+                    >
+
+                    <!-- Container da câmera -->
+                    <div id="cameraContainer" class="hidden">
+                        <video id="video" autoplay playsinline
+                            class="rounded-full w-56 h-56 object-cover border-2 border-gray-300 bg-gray-100"></video>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="flex flex-col space-y-3 w-full items-center">
+                        <x-primary-button id="startCameraBtn" type="button"  class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                            {{ $cameraButtonText }}
+                        </x-primary-button>
+
+                        <x-primary-button id="captureBtn" type="button"  class="hidden bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                            Capturar Foto
+                        </x-primary-button>
+
+                        <x-primary-button id="uploadPhotoBtn" type="button"  class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                            Enviar Foto
+                        </x-primary-button>
+
+                        <input type="file" id="fileInput" accept="image/*" class="hidden">
+                    </div>
                 </div>
-                <input type="file" name="photo" accept="image/*" capture="user" onchange="previewPhoto(event)"
-                    class="text-sm text-gray-500 file:border-0 file:bg-gray-200 file:px-3 file:py-1 file:rounded-md file:cursor-pointer">
-                <button type="button" onclick="openCamera()" class="text-sm bg-blue-500 text-white px-2 py-1 rounded-md">Usar Câmera</button>
+
+                <input type="hidden" name="photo_data" id="photo_data" />
             </div>
 
             {{-- Campos principais do usuário --}}
-            <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                 <div>
-                    <label class="block text-sm font-medium">Nome</label>
-                    <input type="text" name="name" value="{{ $user->name }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Numero KAK</label>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mt-3">{{ $profile->number_kak }}</label>
                 </div>
+
                 <div>
-                    <label class="block text-sm font-medium">E-mail</label>
-                    <input type="email" name="email" id="email" value="{{ $user->email }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                    <p id="emailFeedback" class="text-sm mt-1"></p>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">E-mail</label>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mt-3">{{ $profile->user->email }}</label>
                 </div>
-                
-            </div>
 
-        {{-- Campos Profile --}}
-        <h3 class="text-lg font-bold border-b pb-1">Dados do Perfil</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-                <label class="block text-sm font-medium">Número KAK</label>
-                <input type="text" name="number_kak" value="{{ $user->profile->number_kak }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium">Número FNKP</label>
-                <input type="text" name="number_fnkp" value="{{ $user->profile->number_fnkp }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium">Data de Admissão</label>
-                <input type="date" name="admission_date" value="{{ $user->profile->admission_date }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium">Nome do Pai</label>
-                <input type="text" name="father_name" value="{{ $user->profile->father_name }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium">Nome da Mãe</label>
-                <input type="text" name="mother_name" value="{{ $user->profile->mother_name }}"  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-           <div>
-                <label class="block text-sm font-medium">Tipo de Documento</label>
-                <select name="document_type" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-white p-2">
-                    <option value="">Selecione</option>
-                    @foreach (App\DocumentoIdentificacao::cases() as $docType)
-                        <option value="{{ $docType->value }}" {{ $user->profile->document_type == $docType->value ? 'selected' : '' }}>{{ $docType->value }}</option>
-                    @endforeach
-                </select>
-            </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Nome</label>
+                    <input 
+                        type="text" 
+                        name="name" 
+                        value="{{ $profile->name }}" 
+                        required
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                    >
+                </div>
 
-            <div>
-                <label class="block text-sm font-medium">Clube</label>
-                <select name="club_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-white p-2">
-                    <option value="">Selecione</option>
-                    @foreach ($clubs as $clube)
-                        <option value="{{ $clube->id }}" {{ $user->profile->club_id == $clube->id ? 'selected' : '' }}>{{ $clube->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium">Número do Documento</label>
-                <input type="text" name="document_number" value="{{ $user->profile->document_number }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium">Data de Nascimento</label>
-                <input type="date" name="birth_date" value="{{ $user->profile->birth_date }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium">Nacionalidade</label>
-                <input type="text" name="nationality" value="{{ $user->profile->nationality }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium">Profissão</label>
-                <input type="text" name="profession" value="{{ $user->profile->profession }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium">Endereço</label>
-                <input type="text" name="address" value="{{ $user->profile->address }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium">Cidade</label>
-                <input type="text" name="city" value="{{ $user->profile->city }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium">Distrito</label>
-                <input type="text" name="district" value="{{ $user->profile->district }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium">Telefone</label>
-                <input type="text" name="phone_number" value="{{ $user->profile->phone_number }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium">Telemóvel</label>
-                <input type="text" name="cell_number" value="{{ $user->profile->cell_number }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium">Contato de Emergência</label>
-                <input type="text" name="contact" value="{{ $user->profile->contact }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium">Número do Contato</label>
-                <input type="text" name="contact_number" value="{{ $user->profile->contact_number }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium">Email do Contato</label>
-                <input type="email" name="contact_email" value="{{ $user->profile->contact_email }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium">Observações</label>
-                <textarea name="observations" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2">{{ $user->profile->observations }}</textarea>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Clube</label>
+                    <select 
+                        name="club_id" 
+                        @if(!auth()->user()->hasAnyRole([
+                            App\Role::TREINADOR_GRAU_I->value,
+                            App\Role::TREINADOR_GRAU_II->value,
+                            App\Role::TREINADOR_GRAU_III->value,
+                            App\Role::ARBITRATOR->value,
+                            App\Role::SUPER_ADMIN->value,
+                        ])); disabled @endif
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm p-2 bg-white dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                        <option value="">Selecione</option>
+                        @foreach ($clubs as $clube)
+                            <option value="{{ $clube->id }}" {{ $profile->club_id == $clube->id ? 'selected' : '' }}>
+                                {{ $clube->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
         </div>
 
-        <div class="flex justify-end">
-            <x-primary-button>{{ __('Salvar') }}</x-primary-button>
+        {{-- Campos Profile --}}
+        <div class="pt-4 border-t border-gray-300 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Dados do Perfil</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @foreach ([
+                    'number_fnkp' => 'Número FNKP',
+                    'admission_date' => 'Data de Admissão',
+                    'father_name' => 'Nome do Pai',
+                    'mother_name' => 'Nome da Mãe',
+                    'birth_date' => 'Data de Nascimento',
+                    'nationality' => 'Nacionalidade',
+                    'profession' => 'Profissão',
+                    'address' => 'Endereço',
+                    'city' => 'Cidade',
+                    'district' => 'Distrito',
+                    'phone_number' => 'Telefone',
+                    'cell_number' => 'Telemóvel',
+                    'contact' => 'Contato de Emergência',
+                    'contact_number' => 'Número do Contato',
+                    'contact_email' => 'Email do Contato',
+                ] as $field => $label)
+                    <div @class(['md:col-span-2' => $field === 'address'])>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $label }}</label>
+
+                        @if($field === 'number_fnkp' || $field == 'admission_date')
+                            {{-- Apenas exibe o valor --}}
+                            <p class="mt-1 w-full border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 p-2">
+                                {{ $profile->$field ?? '—' }}
+                            </p>
+                        @else
+                            <input 
+                                type="{{ in_array($field, ['birth_date']) ? 'date' : (str_contains($field, 'email') ? 'email' : 'text') }}" 
+                                name="{{ $field }}"
+                                value="{{ $profile->$field }}"
+                                class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                            >
+                        @endif
+                    </div>
+                @endforeach
+
+                {{-- Número do Documento + Tipo do Documento lado a lado --}}
+                <div class="flex gap-4 md:col-span-2">
+                   
+
+                    <div class="flex-1">
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Tipo de Documento</label>
+                        <select 
+                            name="document_type" 
+                            class="mt-1 block w-full p-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm bg-white dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                            <option value="">Selecione</option>
+                            @foreach (App\DocumentoIdentificacao::cases() as $docType)
+                                <option value="{{ $docType->value }}" {{ $profile->document_type == $docType->value ? 'selected' : '' }}>
+                                    {{ $docType->value }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                     <div class="flex-1">
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Número do Documento</label>
+                        <input 
+                            type="text" 
+                            name="document_number" 
+                            value="{{ $profile->document_number }}" 
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                        >
+                    </div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Observações</label>
+                    <textarea 
+                        name="observations" 
+                        rows="3"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                    >{{ $profile->observations }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end pt-6">
+            <x-primary-button class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                {{ __('Salvar') }}
+            </x-primary-button>
         </div>
     </form>
 
-    {{-- Scripts --}}
     <script>
-        // Pré-visualização do arquivo
-        function previewPhoto(event) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                document.getElementById('photoPreview').src = reader.result;
-            };
-            reader.readAsDataURL(event.target.files[0]);
+document.addEventListener('DOMContentLoaded', () => {
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
+    const cameraContainer = document.getElementById('cameraContainer');
+    const video = document.getElementById('video');
+    const photoPreview = document.getElementById('photoPreview');
+    const fileInput = document.getElementById('fileInput');
+    const photoDataInput = document.getElementById('photo_data');
+
+    let stream;
+
+    // Iniciar câmera
+    startCameraBtn.addEventListener('click', async () => {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            cameraContainer.classList.remove('hidden');
+            photoPreview.classList.add('hidden');
+            captureBtn.classList.remove('hidden');
+            startCameraBtn.classList.add('hidden');
+        } catch (err) {
+            alert('Erro ao acessar a câmera: ' + err.message);
+            console.error(err);
+        }
+    });
+
+    // Capturar imagem
+    captureBtn.addEventListener('click', () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/png');
+
+        photoPreview.src = dataUrl;
+        photoPreview.classList.remove('hidden');
+        cameraContainer.classList.add('hidden');
+        captureBtn.classList.add('hidden');
+        startCameraBtn.classList.remove('hidden');
+
+        // Parar vídeo
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
         }
 
-        // Abrir câmera do computador
-        async function openCamera() {
-            try {
-                // Solicita acesso à câmera
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        // Salvar imagem no input hidden
+        photoDataInput.value = dataUrl;
+    });
 
-                if (!stream.getVideoTracks().length) {
-                    alert("Nenhuma câmera encontrada no dispositivo.");
-                    return;
-                }
+    // Upload manual de arquivo
+    uploadPhotoBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
 
-                // Cria modal
-                const modal = document.createElement('div');
-                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-                modal.innerHTML = `
-                    <div class="bg-white p-4 rounded-md flex flex-col items-center space-y-2">
-                        <video id="videoCam" autoplay class="w-64 h-48 bg-gray-200 rounded-md"></video>
-                        <div class="flex space-x-2">
-                            <button id="captureBtn" class="bg-blue-500 text-white px-3 py-1 rounded-md">Capturar</button>
-                            <button id="closeBtn" class="bg-gray-300 px-3 py-1 rounded-md">Fechar</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (!file) return;
 
-                // Configura vídeo
-                const video = modal.querySelector('#videoCam');
-                video.srcObject = stream;
-
-                // Captura foto
-                modal.querySelector('#captureBtn').onclick = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 200;
-                    canvas.height = 200;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    document.getElementById('photoPreview').src = canvas.toDataURL('image/png');
-
-                    // Para a câmera e fecha modal
-                    stream.getTracks().forEach(track => track.stop());
-                    document.body.removeChild(modal);
-                };
-
-                // Fecha modal sem capturar
-                modal.querySelector('#closeBtn').onclick = () => {
-                    stream.getTracks().forEach(track => track.stop());
-                    document.body.removeChild(modal);
-                };
-
-            } catch (err) {
-                // Tratamento detalhado de erros
-                switch (err.name) {
-                    case "NotAllowedError":
-                        alert("Acesso à câmera negado pelo usuário.");
-                        break;
-                    case "NotFoundError":
-                        alert("Nenhuma câmera encontrada no dispositivo.");
-                        break;
-                    case "NotReadableError":
-                        alert("Não foi possível acessar a câmera. Ela pode estar em uso por outro aplicativo.");
-                        break;
-                    case "OverconstrainedError":
-                        alert("Nenhuma câmera atende às restrições solicitadas.");
-                        break;
-                    default:
-                        alert("Erro ao acessar a câmera: " + err.message);
-                }
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const emailInput = document.getElementById('email');
-            const feedback = document.getElementById('emailFeedback');
-            if (!emailInput) return;
-
-            emailInput.addEventListener('blur', async () => {
-                const email = emailInput.value.trim();
-                if (!email) {
-                    feedback.textContent = '';
-                    return;
-                }
-
-                try {
-                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    const response = await fetch("{{ route('check-email') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': token
-                        },
-                        body: JSON.stringify({ email })
-                    });
-                    const data = await response.json();
-
-                    if (data.exists) {
-                        feedback.textContent = "Este e-mail já está cadastrado.";
-                        feedback.className = "text-sm text-red-500 mt-1";
-                    } else {
-                        feedback.textContent = "E-mail disponível.";
-                        feedback.className = "text-sm text-green-500 mt-1";
-                    }
-
-                } catch (err) {
-                    console.error(err);
-                    feedback.textContent = "Erro ao verificar e-mail.";
-                    feedback.className = "text-sm text-yellow-500 mt-1";
-                }
-            });
-        });
-
-    </script>
-    
-
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            photoPreview.src = e.target.result;
+            photoPreview.classList.remove('hidden');
+            cameraContainer.classList.add('hidden');
+            captureBtn.classList.add('hidden');
+            startCameraBtn.classList.remove('hidden');
+            photoDataInput.value = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+});
+</script>
 
 </x-app-layout>

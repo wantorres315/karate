@@ -231,9 +231,21 @@
                                             <tbody>
                                                 @foreach($firstColumn as $graduation)
                                                 <tr>
-                                                    <td style="font-size: 9px; text-align: center;">
-                                                        @if($graduation['color'])
-                                                            <div style="width: 12px; height: 12px; background-color: {{ $graduation['color'] }}; border: 1px solid #000; margin: 0 auto; border-radius: 2px;"></div>
+                                                       <td style="font-size: 9px; text-align: center;">
+                                                         @if($graduation['color'])
+                                                            @php
+                                                                $colorString = $graduation['color']; // ex: "yellow_orange" ou "red"
+                                                                $colors = explode('_', $colorString);
+                                                                $count = count($colors);
+                                                                $width = 100 / $count;
+                                                            @endphp
+
+                                                            <span style="display:inline-block; width:14px; height:14px; border-radius:50%; 
+                                                                        border:1px solid #000; margin-right:6px; overflow:hidden; vertical-align:middle;">
+                                                                @foreach($colors as $color)
+                                                                    <span style="float:left; width:{{ $width }}%; height:100%; background-color:{{ strtolower(trim($color)) }};"></span>
+                                                                @endforeach
+                                                            </span>
                                                         @endif
                                                     <td style="font-size: 9px;">{{ $graduation['name'] }}</td>
                                                     <td style="font-size: 9px;">{{ $graduation['date'] ?? '-' }}</td>
@@ -258,8 +270,21 @@
                                                 <tr>
                                                     <td style="font-size: 9px; text-align: center;">
                                                         @if($graduation['color'])
-                                                            <div style="width: 12px; height: 12px; background-color: {{ $graduation['color'] }}; border: 1px solid #000; margin: 0 auto; border-radius: 2px;"></div>
+                                                            @php
+                                                                $colorString = $graduation['color']; // ex: "yellow_orange" ou "red"
+                                                                $colors = explode('_', $colorString);
+                                                                $count = count($colors);
+                                                                $width = 100 / $count;
+                                                            @endphp
+
+                                                            <span style="display:inline-block; width:14px; height:14px; border-radius:50%; 
+                                                                        border:1px solid #000; margin-right:6px; overflow:hidden; vertical-align:middle;">
+                                                                @foreach($colors as $color)
+                                                                    <span style="float:left; width:{{ $width }}%; height:100%; background-color:{{ strtolower(trim($color)) }};"></span>
+                                                                @endforeach
+                                                            </span>
                                                         @endif
+
                                                     </td>
                                                     <td style="font-size: 9px;">{{ $graduation['name'] }}</td>
                                                     <td style="font-size: 9px;">{{ $graduation['date'] ?? '-' }}</td>
