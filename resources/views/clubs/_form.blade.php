@@ -19,7 +19,7 @@
         <label class="block text-sm font-medium text-gray-700">Logo</label>
         <input type="file" name="logo" class="w-full border rounded-md px-3 py-2">
         @if(!empty($club->logo))
-            <img src="{{ asset($club->logo) }}" alt="Logo do Clube" class="mt-2 h-20">
+            <img src="{{ asset('storage/' . $club->logo) }}" alt="Logo do Clube" class="mt-2 h-20">
         @endif
     </div>
 

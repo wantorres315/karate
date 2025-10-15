@@ -9,6 +9,7 @@ use App\Models\Arbitrator;
 use App\Models\Graduation;
 use Carbon\Carbon;
 use App\Models\Profile;
+use App\Models\Classe;
 
 class PdfController extends Controller
 {
@@ -78,5 +79,10 @@ class PdfController extends Controller
 
         $pdf = PDF::loadView('pdf.member', compact('member', 'graduations'));
         return $pdf->stream('member.pdf');
+    }
+
+    public function classesPDF(Classe $classe){
+        $pdf = PDF::loadView('pdf.classe', compact('classe'));
+        return $pdf->stream('classe.pdf');
     }
 }

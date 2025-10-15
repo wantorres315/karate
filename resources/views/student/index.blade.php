@@ -1,29 +1,32 @@
 <x-app-layout>
     <div class="p-4" x-data="{ openFiltro: false }">
-        
-        <!-- 🔘 Botões de ação -->
-        <div class="mb-4 flex gap-2">
-            @if(auth()->user()->hasAnyRole([
-                App\Role::TREINADOR_GRAU_I->value,
-                App\Role::TREINADOR_GRAU_II->value,
-                App\Role::TREINADOR_GRAU_III->value,
-                App\Role::ARBITRATOR->value,
-                App\Role::SUPER_ADMIN->value,
-            ]));
-                <a href="{{ route('student.create') }}" 
-                class="px-4 py-2 bg-green-600 text-white rounded-md" style="background-color: #e62111">
-                    ➕ Adicionar Aluno
-                </a>
-           
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">Alunos</h2>
+            <div class="mb-4 flex gap-2">
+                @if(auth()->user()->hasAnyRole([
+                    App\Role::TREINADOR_GRAU_I->value,
+                    App\Role::TREINADOR_GRAU_II->value,
+                    App\Role::TREINADOR_GRAU_III->value,
+                    App\Role::ARBITRATOR->value,
+                    App\Role::SUPER_ADMIN->value,
+                ]))
+                    <a href="{{ route('student.create') }}" 
+                    class="px-4 py-2 bg-green-600 text-white rounded-md" style="background-color: #e62111">
+                        ➕ Adicionar Aluno
+                    </a>
+            
 
-            <button type="button" 
-                    @click="openFiltro = !openFiltro" 
-                    class="px-4 py-2 text-white rounded-md hover:bg-gray-700" style="background-color: #FF6600;">
-                <span x-show="!openFiltro">🔍 Abrir Filtros</span>
-                <span x-show="openFiltro">❌ Fechar Filtros</span>
-            </button>
-             @endif
+                <button type="button" 
+                        @click="openFiltro = !openFiltro" 
+                        class="px-4 py-2 text-white rounded-md hover:bg-gray-700" style="background-color: #FF6600;">
+                    <span x-show="!openFiltro">🔍 Abrir Filtros</span>
+                    <span x-show="openFiltro">❌ Fechar Filtros</span>
+                </button>
+                @endif
+            </div>
         </div>
+        <!-- 🔘 Botões de ação -->
+        
 
         @if(auth()->user()->hasAnyRole([
                 App\Role::TREINADOR_GRAU_I->value,
@@ -31,7 +34,7 @@
                 App\Role::TREINADOR_GRAU_III->value,
                 App\Role::ARBITRATOR->value,
                 App\Role::SUPER_ADMIN->value,
-            ]));
+            ]))
         <!-- 🔍 Form de Filtros -->
         <form method="GET" action="{{ route('student.index') }}" 
               x-show="openFiltro" x-transition 
@@ -75,21 +78,28 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50" style="background-color: #D9D9D9;">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">#</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500"></th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Nome</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Email</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Clube</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Número KAK</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Graduação</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Data da Graduação</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Escalão</th>
+                        
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Ações</th>
+                        @if(auth()->user()->hasRole(\App\Role::SUPER_ADMIN))
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Treinador</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($alunos as $index => $profile)
                         <tr class="hover:bg-gray-100">
                             <td class="px-6 py-4 whitespace-nowrap">
-                                {{ $index + 1 + ($alunos->currentPage() - 1) * $alunos->perPage() }}
+                                <img src="{{ $profile['photo'] }}" 
+                                    alt="Foto do Usuário" 
+                                    class="w-12 h-12 rounded-full object-cover">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $profile['nome'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $profile['user_email'] }}</td>
@@ -123,6 +133,7 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $profile['graduacao_data'] ? \Carbon\Carbon::parse($profile['graduacao_data'])->format('d/m/Y') : '' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{$profile["escalao"] }} </td>
                             <td class="px-6 py-4 whitespace-nowrap flex gap-2">
                                 <a href="{{ route('student.graduations', $profile['profile_id']) }}" 
                                    class="text-green-600 hover:text-green-900" title="Graduações">
@@ -136,14 +147,15 @@
                                    class="text-blue-600 hover:text-blue-900" title="Editar Perfil">
                                     <i class="fa fa-pencil" aria-hidden="true"></i>
                                 </a>
+                                
                                 @if(auth()->user()->hasAnyRole([
                                     App\Role::TREINADOR_GRAU_I->value,
                                     App\Role::TREINADOR_GRAU_II->value,
                                     App\Role::TREINADOR_GRAU_III->value,
                                     App\Role::ARBITRATOR->value,
                                     App\Role::SUPER_ADMIN->value,
-                                ]));
-                                <form action="{{ route('profile.destroy', $profile['profile_id']) }}" method="POST" class="inline">
+                                ]))
+                                <form action="{{ route('student.destroy', $profile['profile_id']) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-600 hover:text-red-900" title="Excluir Perfil">
@@ -152,6 +164,27 @@
                                 </form>
                                 @endif
                             </td>
+                           <td>
+                                <form action="{{ route('student.toggle-treinador', $profile['profile_id']) }}" method="POST" class="flex items-center gap-2 treinador-form">
+                                    @csrf
+                                    <input type="hidden" name="nome" value="{{ request('nome') }}">
+                                    <input type="hidden" name="number_kak" value="{{ request('number_kak') }}">
+                                    <input type="hidden" name="clube" value="{{ request('clube') }}">
+                                    <input type="hidden" name="graduacao_id" value="{{ request('graduacao_id') }}">
+
+                                    <select name="grau" class="border rounded-md text-sm p-1 treinador-select">
+                                        <option value="no_rule" {{ !$profile['user']->hasAnyRole([
+                                            \App\Role::TREINADOR_GRAU_I->value,
+                                            \App\Role::TREINADOR_GRAU_II->value,
+                                            \App\Role::TREINADOR_GRAU_III->value
+                                        ]) ? 'selected' : '' }}>No Grau</option>
+                                        <option value="I" {{ $profile['user']->hasRole(\App\Role::TREINADOR_GRAU_I->value) ? 'selected' : '' }}>Grau I</option>
+                                        <option value="II" {{ $profile['user']->hasRole(\App\Role::TREINADOR_GRAU_II->value) ? 'selected' : '' }}>Grau II</option>
+                                        <option value="III" {{ $profile['user']->hasRole(\App\Role::TREINADOR_GRAU_III->value) ? 'selected' : '' }}>Grau III</option>
+                                    </select>
+                                </form>
+                            </td>
+
                         </tr>
                     @endforeach
                 </tbody>
@@ -162,5 +195,17 @@
         <div class="mt-4 flex justify-center">
             {{ $alunos->appends(request()->query())->onEachSide(1)->links() }}
         </div>
+
     </div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.treinador-select').forEach(select => {
+        select.addEventListener('change', function() {
+            const form = this.closest('form'); // pega o form pai
+            form.submit(); // envia o POST automaticamente
+        });
+    });
+});
+</script>
 </x-app-layout>

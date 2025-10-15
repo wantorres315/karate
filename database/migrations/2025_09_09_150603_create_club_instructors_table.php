@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('club_instructors', function (Blueprint $table) {
             $table->id();
             $table->foreignId("club_id")->index();
-            $table->foreignId(column: "user_id")->index();
+            $table->foreignId(column: "profile_id")->index();
             $table->timestamps();
         });
     }

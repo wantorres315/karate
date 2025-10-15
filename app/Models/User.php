@@ -53,10 +53,14 @@ class User extends Authenticatable
 
     public function profiles()
     {
-        return $this->hasMany(Profile::class);
+        return $this->hasMany(Profile::class, 'user_id', 'id');
     }
 
-    
+    public function lastGraduation()
+    {
+        return $this->hasOne(GraduationUser::class, 'user_id', 'id')
+            ->latestOfMany('date'); // usa a data para pegar a última
+    }
 
     public function graduations()
     {

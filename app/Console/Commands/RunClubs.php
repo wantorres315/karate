@@ -51,6 +51,7 @@ class RunClubs extends Command
                         'certificate_fnkp' => $record['Cert FNKP'] ?? null,
                         'status_year' => $record['ESTADO'] ?? null,
                         'status' => $record['ESTADO']  !== "Inativo" ? 'active' : 'inactive',
+                        "logo" => "clubs/logos/club.png",
                     ]
                 );
 

@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Club;
 use App\Role;
+use App\Models\Profile;
 
 class RunInstructor extends Command
 {
@@ -37,11 +38,10 @@ class RunInstructor extends Command
 
             foreach ($records as $record) {
 
-                $user = User::whereHas('profile', function ($q) use ($record) {
-                    $q->whereRaw("REPLACE(number_kak, '.', '') = ?", [$record['NUMERO_MEMBRO']]);
-                })->first();
+                $profile = Profile::whereRaw("REPLACE(number_kak, '.', '') = ?", [$record['NUMERO_MEMBRO']])
+                  ->first();
 
-                if (!$user) {
+                if (!$profile) {
                     $this->warn("Usuário não encontrado: {$record['NUMERO_MEMBRO']}");
                     $bar->advance();
                     continue;
@@ -59,11 +59,14 @@ class RunInstructor extends Command
                 ClubInstructors::updateOrCreate(
                     [
                         'club_id' => $club->id,
-                        'user_id' => $user->id,
+                        'profile_id' => $profile->id,
                     ],
                     [] // sem campos adicionais, só garante a existência
                 );
-                $user->assignRole(Role::TREINADOR_GRAU_I->value);
+                $profile->is_treinador = true;
+                $profile->save();
+                
+                $profile->user->assignRole(Role::TREINADOR_GRAU_I->value);
 
                 $bar->advance();
             }

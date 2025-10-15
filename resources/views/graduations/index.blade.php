@@ -1,19 +1,11 @@
 <x-app-layout>
     <div class="p-4" x-data="{ openFiltro: false }">
-
-        <!-- 🔘 Botões de ação -->
-        <div class="mb-4 flex gap-2">
-            <a href="{{ route('graduations.create') }}" 
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">Graduações</h2>
+             <a href="{{ route('graduations.create') }}" 
                class="px-4 py-2 bg-green-600 text-white rounded-md" style="background-color: #e62111">
                 ➕ Adicionar Graduação
             </a>
-
-            <button type="button" 
-                    @click="openFiltro = !openFiltro" 
-                    class="px-4 py-2 text-white rounded-md hover:bg-gray-700" style="background-color: #FF6600;">
-                <span x-show="!openFiltro">🔍 Abrir Filtros</span>
-                <span x-show="openFiltro">❌ Fechar Filtros</span>
-            </button>
         </div>
 
         <!-- 🔍 Filtros -->
@@ -44,7 +36,6 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50" style="background-color: #D9D9D9;">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">#</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Cor</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Nome</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Ações</th>
@@ -53,9 +44,7 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($graduations as $graduation)
                         <tr class="hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                {{ $loop->iteration + ($graduations->currentPage() - 1) * $graduations->perPage() }}
-                            </td>
+                            
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @php
                                 $colors = explode('_', $graduation->color);

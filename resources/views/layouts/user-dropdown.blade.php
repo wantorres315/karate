@@ -1,10 +1,15 @@
 <x-dropdown>
     <x-slot name="trigger">
-        <!-- Avatar do usuário com fallback para a imagem padrão -->
-        <img src="{{ auth()->user()->photo ?? asset('assets/avatars/default.png') }}"
-             alt="{{ auth()->user()->name }}"
-             onerror="this.onerror=null; this.src='{{ asset('assets/avatars/default.png') }}'"
-             class="h-9 w-9 rounded-full object-cover" />
+@php
+    $firstProfile = auth()->user()->profiles()->orderBy('number_kak')->first();
+    $photo = $firstProfile?->photo ?? asset('assets/avatars/default.png');
+@endphp
+
+<img src="{{ $photo }}"
+     alt="{{ auth()->user()->name }}"
+     onerror="this.onerror=null; this.src='{{ asset('assets/avatars/default.png') }}'"
+     class="h-9 w-9 rounded-full object-cover" />
+    
     </x-slot>
 
     <x-slot name="content">

@@ -145,6 +145,7 @@ class RunUsers extends Command
                             'graduation' => $record['GRADUAÇÃO'] ?? null,
                             'club_id' => Club::where("id",$record['DOJO'])->first()->id ?? null,
                             "status" => $statusMap[$estado] ?? 'active',
+                            "photo" => "/storage/clubs/logos/club.png",
                         ]
                     );
                 }

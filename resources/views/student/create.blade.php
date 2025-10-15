@@ -15,12 +15,9 @@
                 <x-input-label for="photo" :value="__('Foto de Perfil')" />
                 <div style="display:flex; flex-direction: column; align-items: center; gap: 10px;">
                     @php
-                        $userPhoto = ($user->photo && $user->photo !== 'default.png') 
-                                    ? $user->photo 
-                                    : asset('assets/avatars/default.png');
-                        $cameraButtonText = ($user->photo && $user->photo !== 'default.png') 
-                                            ? 'Foto via Webcam' 
-                                            : 'Tirar Minha Foto';
+                        $userPhoto =  asset('assets/avatars/default.png');
+                        $cameraButtonText = "Foto via Webcam";
+                                            
                     @endphp
 
                     <div class="flex flex-col items-center space-y-4">
@@ -74,10 +71,7 @@
                     <input type="email" name="email" id="email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                     <p id="emailFeedback" class="text-sm mt-1"></p>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium">Senha</label>
-                    <input type="password" name="password" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                </div>
+                
                  <div>
                     <label class="block text-sm font-medium">Clube</label>
                     <select name="club_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-white p-2">
@@ -185,128 +179,9 @@
         </div>
     </form>
 
-    {{-- Scripts --}}
-    <script>
-        // Pré-visualização do arquivo
-        function previewPhoto(event) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                document.getElementById('photoPreview').src = reader.result;
-            };
-            reader.readAsDataURL(event.target.files[0]);
-        }
-
-        // Abrir câmera do computador
-        async function openCamera() {
-            try {
-                // Solicita acesso à câmera
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-
-                if (!stream.getVideoTracks().length) {
-                    alert("Nenhuma câmera encontrada no dispositivo.");
-                    return;
-                }
-
-                // Cria modal
-                const modal = document.createElement('div');
-                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-                modal.innerHTML = `
-                    <div class="bg-white p-4 rounded-md flex flex-col items-center space-y-2">
-                        <video id="videoCam" autoplay class="w-64 h-48 bg-gray-200 rounded-md"></video>
-                        <div class="flex space-x-2">
-                            <button id="captureBtn" class="bg-blue-500 text-white px-3 py-1 rounded-md">Capturar</button>
-                            <button id="closeBtn" class="bg-gray-300 px-3 py-1 rounded-md">Fechar</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-
-                // Configura vídeo
-                const video = modal.querySelector('#videoCam');
-                video.srcObject = stream;
-
-                // Captura foto
-                modal.querySelector('#captureBtn').onclick = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 200;
-                    canvas.height = 200;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    document.getElementById('photoPreview').src = canvas.toDataURL('image/png');
-
-                    // Para a câmera e fecha modal
-                    stream.getTracks().forEach(track => track.stop());
-                    document.body.removeChild(modal);
-                };
-
-                // Fecha modal sem capturar
-                modal.querySelector('#closeBtn').onclick = () => {
-                    stream.getTracks().forEach(track => track.stop());
-                    document.body.removeChild(modal);
-                };
-
-            } catch (err) {
-                // Tratamento detalhado de erros
-                switch (err.name) {
-                    case "NotAllowedError":
-                        alert("Acesso à câmera negado pelo usuário.");
-                        break;
-                    case "NotFoundError":
-                        alert("Nenhuma câmera encontrada no dispositivo.");
-                        break;
-                    case "NotReadableError":
-                        alert("Não foi possível acessar a câmera. Ela pode estar em uso por outro aplicativo.");
-                        break;
-                    case "OverconstrainedError":
-                        alert("Nenhuma câmera atende às restrições solicitadas.");
-                        break;
-                    default:
-                        alert("Erro ao acessar a câmera: " + err.message);
-                }
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const emailInput = document.getElementById('email');
-            const feedback = document.getElementById('emailFeedback');
-            if (!emailInput) return;
-
-            emailInput.addEventListener('blur', async () => {
-                const email = emailInput.value.trim();
-                if (!email) {
-                    feedback.textContent = '';
-                    return;
-                }
-
-                try {
-                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    const response = await fetch("{{ route('check-email') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': token
-                        },
-                        body: JSON.stringify({ email })
-                    });
-                    const data = await response.json();
-
-                    if (data.exists) {
-                        feedback.textContent = "Este e-mail já está cadastrado.";
-                        feedback.className = "text-sm text-red-500 mt-1";
-                    } else {
-                        feedback.textContent = "E-mail disponível.";
-                        feedback.className = "text-sm text-green-500 mt-1";
-                    }
-
-                } catch (err) {
-                    console.error(err);
-                    feedback.textContent = "Erro ao verificar e-mail.";
-                    feedback.className = "text-sm text-yellow-500 mt-1";
-                }
-            });
-        });
-
-    </script>
+  @push('scripts')
+    @vite('resources/js/camera.js')
+@endpush
     
 
 

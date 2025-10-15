@@ -8,7 +8,7 @@
               title="Alunos Ativos" 
               :value="$countStudentsActive" 
               icon="<i class='fa fa-users text-lg relative top-3 text-white'></i>" 
-              color="from-blue-500 to-violet-500"
+              color="from-red-500 to-red-500"
           />
       </div>
     @endif
@@ -19,7 +19,7 @@
               title="Alunos Inativos" 
               :value="$countStudentsInactive" 
               icon="<i class='fa fa-users text-lg relative top-3 text-white'></i>" 
-              color="from-blue-500 to-violet-500"
+              color="from-red-500 to-red-500"
           />
       </div>
     @endif
@@ -28,7 +28,8 @@
       @php
         $clubName = $club['name'];
         $totalStudents = $club['count'];
-        $logo = $club['logo'] ?? asset('images/logo_branco.png');
+      
+        $logo =  asset('storage/' . $club["logo"]);
       @endphp
 
      <!-- Card 3 -->

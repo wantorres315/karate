@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Profile extends Model
 {
@@ -38,8 +39,11 @@ class Profile extends Model
         'observations',
         'club_id',
         'status',
+        "is_treinador",
     ];
 
+      protected $appends = ['escalao']; 
+      
     public function club()
     {
         return $this->belongsTo(Club::class, 'club_id', 'id');
@@ -58,5 +62,30 @@ class Profile extends Model
     {
         return $this->hasMany(GraduationUser::class, 'profile_id', 'id');
     }
+
+
+    public function getEscalaoAttribute()
+    {
+        if (!$this->birth_date) {
+            return null;
+        }
+
+        $birthDate = Carbon::parse($this->birth_date);
+
+        $escalao = Escalao::whereDate('start_date', '<=', $birthDate)
+            ->whereDate('end_date', '>=', $birthDate)
+            ->first();
+
+        return $escalao ? $escalao->name : 'Sem Escalão';
+    }
+
+    public function classes()
+    {
+        return $this->belongsToMany(ClassModel::class, 'class_profile', 'profile_id', 'class_id');
+    }
+
+    protected $casts = [
+        'is_treinador' => 'boolean',
+    ];
     
 }
