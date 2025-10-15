@@ -10,5 +10,4 @@ enum Role : string
     case ARBITRATOR = 'arbitrator';
     case PRATICANTE = 'praticante';
     case SUPER_ADMIN = 'super admin';
-    
 }
