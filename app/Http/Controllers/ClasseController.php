@@ -78,6 +78,7 @@ class ClasseController extends Controller
             'instructors' => 'nullable|array', // <-- adiciona instrutores
         ]);
 
+        
         $classe = Classe::create([
             'name' => $request->name,
             'description' => $request->description,
