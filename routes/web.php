@@ -93,6 +93,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{club}/store-coach', [ClubController::class, 'storeCoach'])->name('clubs.storeCoach');
         Route::delete('/{club}/remove-coach/{profile}', [ClubController::class, 'removeCoach'])->name('clubs.removeCoach');
     });
+    
 
     Route::prefix("schedule")->controller(ScheduleController::class)->group(function(){
         Route::get("/", "index")->name("schedule.index");
