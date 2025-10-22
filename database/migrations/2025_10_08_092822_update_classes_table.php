@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
          Schema::table('classes', function (Blueprint $table) {
-            $table->date('startDate')->nullable()->after('week_days');
+            //$table->date('startDate')->nullable()->after('week_days');
             $table->date('endDate')->nullable()->after('startDate');
         });
         
@@ -17,7 +17,7 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('classes', function (Blueprint $table) {
-            Schema::dropColumn('startDate');
+           // Schema::dropColumn('startDate');
             Schema::dropColumn('endDate');
         });
     }
