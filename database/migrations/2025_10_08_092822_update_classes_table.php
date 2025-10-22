@@ -20,5 +20,6 @@ return new class extends Migration {
            // Schema::dropColumn('startDate');
             Schema::dropColumn('endDate');
         });
+        
     }
 };
