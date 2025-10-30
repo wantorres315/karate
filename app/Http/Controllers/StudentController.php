@@ -110,7 +110,7 @@ class StudentController extends Controller
             $page,
             ['path' => $request->url(), 'query' => $request->query()]
         );
-        return view('student.index', [
+        return view('members.index', [
             'alunos' => $paginated,
             'graduacoes' => $graduacoes,
             
@@ -120,7 +120,7 @@ class StudentController extends Controller
     public function create()
     {
         $clubs = Club::all();
-        return view('student.create', compact('clubs'));
+        return view('members.create', compact('clubs'));
     }
 
    public function store(Request $request)
@@ -230,7 +230,7 @@ class StudentController extends Controller
         ]);
     }
 
-    return redirect()->route('student.index')
+    return redirect()->route('members.index')
                      ->with('success', 'Perfil criado com sucesso!');
 }
 
@@ -276,7 +276,7 @@ public function toggleTreinador(Request $request, Profile $profile)
     $query = $request->only(['nome', 'number_kak', 'clube', 'graduacao_id']);
 
     return redirect()
-        ->route('student.index', array_filter($query))
+        ->route('members.index', array_filter($query))
         ->with('success', $isTreinador ? "Treinador Grau {$request['grau']} atribuído." : 'Treinador removido.');
 }
 
@@ -287,7 +287,7 @@ public function toggleTreinador(Request $request, Profile $profile)
     {
         $clubs = Club::all();
         $profile->load("user");
-        return view('student.edit', compact('profile', 'clubs'));
+        return view('members.edit', compact('profile', 'clubs'));
     }
 
     public function update(Request $request, Profile $profile)
@@ -372,7 +372,7 @@ public function toggleTreinador(Request $request, Profile $profile)
             'photo' => $photo ?? $profile->photo,
         ]);
 
-        return redirect()->route('student.edit', $profile->id)
+        return redirect()->route('members.edit', $profile->id)
                          ->with('success', 'Usuário e perfil atualizados com sucesso!');
     }
 
@@ -397,7 +397,7 @@ public function toggleTreinador(Request $request, Profile $profile)
 
         $profile->delete();
 
-        return redirect()->route('student.index')
+        return redirect()->route('members.index')
                          ->with('success', 'Usuário deletado com sucesso!');
     }
 
@@ -409,7 +409,7 @@ public function toggleTreinador(Request $request, Profile $profile)
             ->get();
 
         $todasGraduacoes = Graduation::all();
-        return view('student.graduation', compact('profile', 'graduacoes', 'todasGraduacoes'));
+        return view('members.graduation', compact('profile', 'graduacoes', 'todasGraduacoes'));
     }
 
     public function addGraduation(Request $request, Profile $profile)
@@ -430,7 +430,7 @@ public function toggleTreinador(Request $request, Profile $profile)
             'location' => $request->location,
         ]);
 
-        return redirect()->route('student.graduations', $profile)
+        return redirect()->route('members.graduations', $profile)
             ->with('success', 'Graduação adicionada com sucesso!');
     }
 
@@ -438,7 +438,7 @@ public function toggleTreinador(Request $request, Profile $profile)
     {
         $graduationUser->delete();
 
-        return redirect()->route('student.graduations', $profile)
+        return redirect()->route('members.graduations', $profile)
             ->with('success', 'Graduação removida com sucesso!');
     }
 }

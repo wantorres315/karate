@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <form action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data" class="p-4 space-y-6">
+    <form action="{{ route('members.store') }}" method="POST" enctype="multipart/form-data" class="p-4 space-y-6">
         @csrf
 
         {{-- Seção de foto + dados do usuário --}}

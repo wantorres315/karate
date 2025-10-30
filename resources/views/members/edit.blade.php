@@ -6,7 +6,7 @@
     </x-slot>
 
     <form 
-        action="{{ route('student.update', $profile->id) }}" 
+        action="{{ route('members.update', $profile->id) }}" 
         method="POST" 
         enctype="multipart/form-data"
         class="p-6 bg-white dark:bg-gray-800 shadow-lg rounded-xl space-y-8"

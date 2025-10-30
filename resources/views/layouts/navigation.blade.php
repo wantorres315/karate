@@ -1,117 +1,141 @@
 <aside 
-    :class="sidenavOpen ? 'translate-x-0 w-64 xl:relative' : '-translate-x-full xl:translate-x-0 xl:w-20'"
-    class="fixed xl:static inset-y-0 left-0 bg-black text-red-600 shadow-xl flex flex-col transition-all duration-300 ease-in-out
-           z-50 h-full xl:h-auto flex-shrink-0"
+    id="main-sidenav"
+    x-data="{ openMenu: null }"
+    class="fixed inset-y-0 left-0 bg-black text-red-600 shadow-xl mt-8 flex flex-col transform transition-transform duration-300 ease-in-out z-40"
+    :class="sidenavOpen ? 'translate-x-0' : '-translate-x-full'"
 >
-    <!-- Botão colapsar (desktop) -->
-    <div class="flex justify-end p-2 hidden xl:flex">
-        <button @click="sidenavOpen = !sidenavOpen" class="text-white">
-             <i class="fas fa-bars text-2xl"></i>
-        </button>
-    </div>
 
-    <!-- Conteúdo Sidebar -->
-    <div class="flex-1 overflow-y-auto mt-2">
-        <ul class="flex flex-col pl-0 mb-0">
-
-            <!-- Dashboard -->
-            <li class="mt-0.5 w-full">
-                <a href="{{ route('dashboard') }}" class="flex items-center py-2.7 px-4 hover:bg-gray-700 transition">
-                    <div class="flex h-8 w-8 items-center justify-center rounded-lg">
-                        <i class="fa-solid fa-house text-red-600"></i>
-                    </div>
-                    <span class="ml-2 font-semibold transition-all duration-300"
-                          x-show="sidenavOpen"
-                          x-transition:enter="transition-all ease-out duration-300"
-                          x-transition:enter-start="opacity-0 w-0"
-                          x-transition:enter-end="opacity-100 w-auto"
-                          x-transition:leave="transition-all ease-in duration-300"
-                          x-transition:leave-start="opacity-100 w-auto"
-                          x-transition:leave-end="opacity-0 w-0">
-                        {{ __('Dashboard') }}
-                    </span>
+    <div class="flex-1 overflow-y-auto pt-2 px-2 mt-8">
+        <!-- Menu replicando a hierarquia fornecida.
+             Ícones usam FontAwesome; todos os links apontam para '#' conforme solicitado. -->
+        <ul id="ulNav" class="nav-links  mt-6 list-none m-0 p-0 space-y-1">
+            <li>
+                <a href="{{route('dashboard')}}" class="flex items-center text-white px-3 py-2 rounded hover:bg-gray-800">
+                    <i class="fas fa-th-large w-6 text-center"></i>
+                    <span class="ml-3 link_name">Painel</span>
                 </a>
-            </li>
-
-            <!-- Alunos com submenu -->
-            <li x-data="{ open: false }" class="mt-0.5 w-full">
-                <button @click="open = !open" class="flex items-center justify-between w-full py-2.7 px-4 rounded-lg hover:bg-gray-700 transition">
-                    <div class="flex items-center">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg">
-                            <i class="fas fa-users text-red-600"></i>
-                        </div>
-                        <span class="ml-2 text-red-600 font-semibold transition-all duration-300"
-                              x-show="sidenavOpen"
-                              x-transition>
-                            @if(Auth::user()->hasRole([App\Role::SUPER_ADMIN, App\Role::TREINADOR_GRAU_I, App\Role::TREINADOR_GRAU_II, App\Role::ARBITRATOR]))
-                                {{ __('Alunos') }}
-                            @else
-                                {{ __('Meus Perfis') }}
-                            @endif
-                        </span>
-                    </div>
-                    <i :class="{'fa-chevron-down': !open, 'fa-chevron-up': open}" class="fas" x-show="sidenavOpen" x-transition></i>
-                </button>
-
-                <ul x-show="open" x-collapse class="ml-6 mt-2 space-y-1" x-cloak>
-                    <li>
-                        <a href="{{ route('student.index') }}" class="block py-2 px-4 rounded hover:bg-gray-600 transition text-sm text-white">
-                            {{ __('Lista de Alunos') }}
-                        </a>
-                    </li>
+                <ul class="sub-menu blank" x-show="openMenu === ''" x-cloak x-transition.opacity>
+                    <li><a class="link_name" href="{{route('dashboard')}}">Painel</a></li>
                 </ul>
             </li>
 
-            <!-- Graduações -->
-            @if(Auth::user()->hasRole([App\Role::SUPER_ADMIN]))
-            <li class="mt-0.5 w-full">
-                <a href="{{ route('graduations.index') }}" class="flex items-center py-2.7 px-4 rounded-lg hover:bg-gray-700 transition">
-                    <div class="flex h-8 w-8 items-center justify-center rounded-lg">
-                        <i class="fa-solid fa-graduation-cap text-red-500"></i>
+            <li id="menuClanovi">
+                <div class="iocn-link flex items-center justify-between cursor-pointer px-3 py-2 rounded hover:bg-gray-800"
+                     @click.prevent="openMenu = (openMenu === 'menuClanovi' ? null : 'menuClanovi')"
+                     :aria-expanded="(openMenu === 'menuClanovi').toString()"
+                     role="button"
+                     tabindex="0"
+                >
+                    <div class="flex items-center">
+                        <a href="#" class="flex items-center text-white">
+                            <i class="fas fa-user w-6 text-center"></i>
+                            <span class="ml-3 link_name">Membros</span>
+                        </a>
                     </div>
-                    <span class="ml-2 text-red-600 font-semibold transition-all duration-300" x-show="sidenavOpen" x-transition>{{ __('Graduações') }}</span>
-                </a>
+                    <i class="fas fa-chevron-down arrow text-white" :class="openMenu === 'menuClanovi' ? 'rotate-180' : ''"></i>
+                </div>
+
+                <!-- submenu stays inside li and is hidden until opened -->
+                <ul class="sub-menu bg-black/80 mt-1 rounded-sm overflow-hidden" x-show="openMenu === 'menuClanovi'" x-cloak x-transition>
+                    <li id="clanoviaspx"><a href="{{route('members.index')}}" class="block px-3 py-2 text-white">Membros</a></li>
+                    <li id="leadsaspx"><a href="#" class="block px-3 py-2 text-white">Leads</a></li>
+                    <li id="familijeaspx"><a href="#" class="block px-3 py-2 text-white">Famílias</a></li>
+                    <li id="grupeaspx"><a href="#" class="block px-3 py-2 text-white">Grupos</a></li>
+                    <li id="poljaaspx"><a href="#" class="block px-3 py-2 text-white">Campos</a></li>
+                    <li id="karticeaspx"><a href="#" class="block px-3 py-2 text-white">Cartões</a></li>
+                    <li id="mjerenjaaspx"><a href="#" class="block px-3 py-2 text-white">Medições</a></li>
+                    <li id="gdpraspx"><a href="#" class="block px-3 py-2 text-white">GDPR</a></li>
+                </ul>
             </li>
 
-            <!-- Clubes -->
-            <li class="mt-0.5 w-full">
-                <a href="{{ route('clubs.index') }}" class="flex items-center py-2.7 px-4 rounded-lg hover:bg-gray-700 transition">
-                    <div class="flex h-8 w-8 items-center justify-center rounded-lg">
-                        <i class="fa-solid fa-pills text-red-500"></i>
+            <li id="menuClasses">
+                <div class="iocn-link flex items-center justify-between cursor-pointer px-3 py-2 rounded hover:bg-gray-800"
+                     @click.prevent="openMenu = (openMenu === 'menuClasses' ? null : 'menuClasses')"
+                     :aria-expanded="(openMenu === 'menuClasses').toString()"
+                     role="button"
+                     tabindex="0"
+                >
+                    <div class="flex items-center">
+                        <a href="#" class="flex items-center text-white">
+                            <i class="fas fa-tasks w-6 text-center"></i>
+                            <span class="ml-3 link_name">Treinamentos</span>
+                        </a>
                     </div>
-                    <span class="ml-2 text-red-600 font-semibold transition-all duration-300" x-show="sidenavOpen" x-transition>{{ __('Clubes') }}</span>
-                </a>
+                    <i class="fas fa-chevron-down arrow text-white" :class="openMenu === 'menuClasses' ? 'rotate-180' : ''"></i>
+                </div>
+                <ul class="sub-menu bg-black/80 mt-1 rounded-sm overflow-hidden" x-show="openMenu === 'menuClasses'" x-cloak x-transition>
+                    <li id="classesaspx"><a href="#" class="block px-3 py-2 text-white">Treinamentos</a></li>
+                    <li id="scheduleaspx"><a href="#" class="block px-3 py-2 text-white">Horário</a></li>
+                    <li id="prisutnostaspx"><a href="#" class="block px-3 py-2 text-white">A frequência das aulas</a></li>
+                    <li id="feedbacksaspx"><a href="#" class="block px-3 py-2 text-white">Comentários</a></li>
+                    <li id="treneriaspx"><a href="#" class="block px-3 py-2 text-white">Treinadores</a></li>
+                    <li id="trainingplansaspx"><a href="#" class="block px-3 py-2 text-white">Planos de treinamento</a></li>
+                    <li id="bookingaspx"><a href="#" class="block px-3 py-2 text-white">Formulários de reserva</a></li>
+                    <li id="bookingclassaspx"><a href="#" class="block px-3 py-2 text-white">Próximas treinamentos</a></li>
+                    <li id="eventsaspx"><a href="#" class="block px-3 py-2 text-white">Eventos</a></li>
+                </ul>
             </li>
-            @endif
 
-            <!-- Turmas e Boletos -->
-            @if(Auth::user()->hasRole([App\Role::SUPER_ADMIN, App\Role::TREINADOR_GRAU_I, App\Role::TREINADOR_GRAU_II, App\Role::TREINADOR_GRAU_III]))
-            <li class="mt-0.5 w-full">
-                <a href="{{ route('classes.index') }}" class="flex items-center py-2.7 px-4 rounded-lg hover:bg-gray-700 transition">
-                    <div class="flex h-8 w-8 items-center justify-center rounded-lg">
-                        <i class="fa-solid fa-chalkboard-user text-red-500"></i>
+            <li id="menuFinance">
+                <div class="iocn-link flex items-center justify-between cursor-pointer px-3 py-2 rounded hover:bg-gray-800"
+                     @click.prevent="openMenu = (openMenu === 'menuFinance' ? null : 'menuFinance')"
+                     :aria-expanded="(openMenu === 'menuFinance').toString()"
+                     role="button"
+                     tabindex="0"
+                >
+                    <div class="flex items-center">
+                        <a href="#" class="flex items-center text-white">
+                            <i class="fas fa-dollar-sign w-6 text-center"></i>
+                            <span class="ml-3 link_name">Finanças</span>
+                        </a>
                     </div>
-                    <span class="ml-2 text-red-600 font-semibold transition-all duration-300" x-show="sidenavOpen" x-transition>{{ __('Turmas') }}</span>
-                </a>
+                    <i class="fas fa-chevron-down arrow text-white" :class="openMenu === 'menuFinance' ? 'rotate-180' : ''"></i>
+                </div>
+                <ul class="sub-menu bg-black/80 mt-1 rounded-sm overflow-hidden" x-show="openMenu === 'menuFinance'" x-cloak x-transition>
+                    <li id="racuniaspx"><a href="#" class="block px-3 py-2 text-white">Faturas</a></li>
+                    <li id="racunidodajaspx"><a href="#" class="block px-3 py-2 text-white">Pagamentos</a></li>
+                    <li id="financijeaspx"><a href="#" class="block px-3 py-2 text-white">Custos e receitas</a></li>
+                    <li id="feesaspx"><a href="#" class="block px-3 py-2 text-white">Pacotes de assinatura</a></li>
+                    <li id="poreziaspx"><a href="#" class="block px-3 py-2 text-white">Impostos</a></li>
+                    <li id="racuniknjigaaspx"><a href="#" class="block px-3 py-2 text-white">Facturas recebidas</a></li>
+                    <li id="planaspx"><a href="#" class="block px-3 py-2 text-white">Planos financeiros</a></li>
+                    <li id="financijevrsteaspx"><a href="#" class="block px-3 py-2 text-white">Configurações</a></li>
+                </ul>
             </li>
 
-            <li class="mt-0.5 w-full">
-                <a href="{{ route('boletos.index') }}" class="flex items-center py-2.7 px-4 rounded-lg hover:bg-gray-700 transition">
-                    <div class="flex h-8 w-8 items-center justify-center rounded-lg">
-                        <i class="fa-solid fa-money-bill-1-wave text-red-500"></i>
+            <li id="menuAchievements">
+                <div class="iocn-link flex items-center justify-between cursor-pointer px-3 py-2 rounded hover:bg-gray-800"
+                     @click.prevent="openMenu = (openMenu === 'menuAchievements' ? null : 'menuAchievements')"
+                     :aria-expanded="(openMenu === 'menuAchievements').toString()"
+                     role="button"
+                     tabindex="0"
+                >
+                    <div class="flex items-center">
+                        <a href="#" class="flex items-center text-white">
+                            <i class="fas fa-award w-6 text-center"></i>
+                            <span class="ml-3 link_name">Realizações</span>
+                        </a>
                     </div>
-                    <span class="ml-2 text-red-600 font-semibold transition-all duration-300" x-show="sidenavOpen" x-transition>{{ __('Boletos') }}</span>
-                </a>
+                    <i class="fas fa-chevron-down arrow text-white" :class="openMenu === 'menuAchievements' ? 'rotate-180' : ''"></i>
+                </div>
+                <ul class="sub-menu bg-black/80 mt-1 rounded-sm overflow-hidden" x-show="openMenu === 'menuAchievements'" x-cloak x-transition>
+                    <li id="pojaseviaspx"><a href="#" class="block px-3 py-2 text-white">Promoções</a></li>
+                    <li id="kyudanaspx"><a href="#" class="block px-3 py-2 text-white">Sistema de cinto</a></li>
+                    <li id="diplomeaspx"><a href="#" class="block px-3 py-2 text-white">Certificados</a></li>
+                    <li id="rezultatiaspx"><a href="#" class="block px-3 py-2 text-white">Competições</a></li>
+                    <li id="disciplineaspx"><a href="#" class="block px-3 py-2 text-white">Categorias</a></li>
+                </ul>
             </li>
-            @endif
+
+           
         </ul>
     </div>
 </aside>
 
-<!-- Overlay mobile -->
-<div 
-    x-show="sidenavOpen" 
-    @click="sidenavOpen = false" 
-    x-transition.opacity
-    class="fixed inset-0 bg-black bg-opacity-50 z-40 xl:hidden"
-></div>
+<!-- Overlay (mobile) -->
+        <div 
+            x-show="sidenavOpen" 
+            @click="sidenavOpen = false" 
+            x-transition.opacity 
+            class="fixed inset-0 bg-black bg-opacity-50 z-30 xl:hidden">
+        </div>

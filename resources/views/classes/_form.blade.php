@@ -216,14 +216,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             // Render alunos
-            if (data.students.length === 0) {
+            if (data.members.length === 0) {
                 studentsContainer.innerHTML = '<p class="text-gray-500 text-sm">Nenhum aluno encontrado neste clube.</p>';
             } else {
-                studentsContainer.innerHTML = data.students.map(student => `
+                studentsContainer.innerHTML = data.members.map(student => `
                     <div class="mb-1">
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" name="students[]" value="${student.id}" ${selectedStudents.includes(student.id) ? 'checked' : ''}>
-                            <span>${student.number_kak} - ${student.name} - ${student.escalao}</span>
+                            <input type="checkbox" name="students[]" value="${members.id}" ${selectedmembers.includes(members.id) ? 'checked' : ''}>
+                            <span>${members.number_kak} - ${members.name} - ${members.escalao}</span>
                         </label>
                         <hr class="border-t border-gray-300 mt-1" style="border:1px solid #cecece">
                     </div>

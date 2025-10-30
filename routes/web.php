@@ -12,6 +12,7 @@ use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\BoletoController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AgendaController;
+use App\Http\Controllers\MembersController;
 
 
 Route::get('/', function () {
@@ -57,17 +58,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
-    Route::prefix('student')->controller(StudentController::class)->group(function () {
-        Route::get('/', 'index')->name('student.index');
-        Route::get('/create', 'create')->name('student.create');
-        Route::post('/', 'store')->name('student.store');
-        Route::get('/{profile}/edit', 'edit')->name('student.edit');
-        Route::put('/{profile}', 'update')->name('student.update');
-        Route::delete('/{profile}', 'destroy')->name('student.destroy');
-        Route::get('/{profile}/graduations', 'graduations')->name('student.graduations');
-        Route::post('/{profile}/graduations', 'addGraduation')->name('student.addGraduation');
-        Route::delete('/{profile}/graduations/{graduationUser}', 'removeGraduation')->name('student.removeGraduation');
-        Route::post('/{profile}/toggle-treinador','toggleTreinador')->name('student.toggle-treinador');
+    Route::prefix('members')->controller(StudentController::class)->group(function () {
+        Route::get('/', 'index')->name('members.index');
+        Route::get('/create', 'create')->name('members.create');
+        Route::post('/', 'store')->name('members.store');
+        Route::get('/{profile}/edit', 'edit')->name('members.edit');
+        Route::put('/{profile}', 'update')->name('members.update');
+        Route::delete('/{profile}', 'destroy')->name('members.destroy');
+        Route::get('/{profile}/graduations', 'graduations')->name('members.graduations');
+        Route::post('/{profile}/graduations', 'addGraduation')->name('members.addGraduation');
+        Route::delete('/{profile}/graduations/{graduationUser}', 'removeGraduation')->name('members.removeGraduation');
+        Route::post('/{profile}/toggle-treinador','toggleTreinador')->name('members.toggle-treinador');
     });
 
     Route::prefix("classes")->group(function(){
@@ -101,8 +102,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('graduations', GraduationController::class);
     Route::resource('clubs', ClubController::class);
     
+    Route::resource('members', MembersController::class)->except(['show']); // ajuste conforme necessidade
     
-
 Route::prefix("/events")->controller(AgendaController::class)->group(function(){
     Route::get('/',  'index');
     Route::post('/', 'store');

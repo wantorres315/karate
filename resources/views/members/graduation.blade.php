@@ -57,7 +57,7 @@
                                     ]))
                                 <td class="px-3 py-2 border">
                                     
-                                    <form action="{{ route('student.removeGraduation', [$profile->id, $g->id]) }}" method="POST" onsubmit="return confirm('Tem certeza?')">
+                                    <form action="{{ route('members.removeGraduation', [$profile->id, $g->id]) }}" method="POST" onsubmit="return confirm('Tem certeza?')">
                                         @csrf
                                         @method('DELETE')
                                         <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">Excluir</button>
@@ -83,7 +83,7 @@
             {{-- FORM --}}
             <div class="bg-white shadow rounded-lg p-4">
                 <h3 class="font-semibold mb-3">Adicionar Graduação</h3>
-                <form action="{{ route('student.addGraduation', $profile->id) }}" method="POST">
+                <form action="{{ route('members.addGraduation', $profile->id) }}" method="POST">
                     @csrf
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
