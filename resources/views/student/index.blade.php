@@ -91,7 +91,7 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($alunos as $index => $profile)
                         <tr class="hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $profile['number_kak'] }} - {{$profile["escalao"] }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap"> {{ $profile['number_kak'] }} - {{$profile["escalao"] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $profile['nome'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $profile['clube'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
