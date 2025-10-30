@@ -78,15 +78,10 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50" style="background-color: #D9D9D9;">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500"></th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Nome</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Clube</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Número KAK</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Nome</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Clube</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Graduação</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Data da Graduação</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Escalão</th>
-                        
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Ações</th>
                         @if(auth()->user()->hasRole(\App\Role::SUPER_ADMIN))
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Treinador</th>
@@ -96,15 +91,9 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($alunos as $index => $profile)
                         <tr class="hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <img src="{{ $profile['photo'] }}" 
-                                    alt="Foto do Usuário" 
-                                    class="w-12 h-12 rounded-full object-cover">
-                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $profile['number_kak'] }} - {{$profile["escalao"] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $profile['nome'] }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $profile['user_email'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $profile['clube'] }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $profile['number_kak'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($profile['graduacao'] !== 'Sem graduação')
                                     @php
@@ -133,7 +122,6 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $profile['graduacao_data'] ? \Carbon\Carbon::parse($profile['graduacao_data'])->format('d/m/Y') : '' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{$profile["escalao"] }} </td>
                             <td class="px-6 py-4 whitespace-nowrap flex gap-2">
                                 <a href="{{ route('student.graduations', $profile['profile_id']) }}" 
                                    class="text-green-600 hover:text-green-900" title="Graduações">
