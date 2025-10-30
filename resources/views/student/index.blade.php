@@ -121,7 +121,6 @@
                                     Sem graduação
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $profile['graduacao_data'] ? \Carbon\Carbon::parse($profile['graduacao_data'])->format('d/m/Y') : '' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap flex gap-2">
                                 <a href="{{ route('student.graduations', $profile['profile_id']) }}" 
                                    class="text-green-600 hover:text-green-900" title="Graduações">
