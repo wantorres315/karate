@@ -87,7 +87,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Treinador</th>
                         @endif
                     </tr>
-                </thead> 
+                </thead>  
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($alunos as $index => $profile)
                         <tr class="hover:bg-gray-100">
