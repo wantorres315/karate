@@ -12,18 +12,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 🔴 Iniciar câmera
     startCameraBtn.addEventListener('click', async () => {
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-            cameraContainer.classList.remove('hidden');
-            photoPreview.classList.add('hidden'); // esconde preview antigo
-            captureBtn.classList.remove('hidden'); // mostra botão capturar
-            startCameraBtn.classList.add('hidden'); // esconde botão iniciar
-        } catch (err) {
-            alert('Erro ao acessar a câmera: ' + err.message);
-            console.error(err);
-        }
+        startCamera();
     });
+
+    function startCamera() {
+        if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    cameraContainer.classList.remove('hidden');
+                    photoPreview.classList.add('hidden'); // esconde preview antigo
+                    captureBtn.classList.remove('hidden'); // mostra botão capturar
+                    startCameraBtn.classList.add('hidden'); // esconde botão iniciar
+                })
+                .catch(function(err) {
+                    alert('Erro ao acessar a câmera: ' + err.message);
+                });
+        } else {
+            alert('Acesso à câmera não suportado neste navegador ou contexto.');
+        }
+    }
 
     // 🔴 Capturar imagem
     captureBtn.addEventListener('click', () => {

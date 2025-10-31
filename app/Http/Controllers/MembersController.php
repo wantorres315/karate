@@ -33,8 +33,22 @@ class MembersController extends Controller
         // dados auxiliares para a view — ajuste conforme modelos reais
         $graduacoes = class_exists(Graduation::class) ? Graduation::orderBy('id')->get() : collect();
         $recentPayments = class_exists(Payment::class) ? Payment::latest()->take(5)->get() : collect();
+        
         return view('members.index', compact('alunos', 'graduacoes', 'recentPayments'));
     }
 
-    // outros métodos (create, store, edit, update, destroy) conforme necessário...
+    public function create()
+    {
+        $clubs = \App\Models\Club::orderBy('name')->get();
+        return view('members.form', compact('clubs'));
+    }
+
+    public function edit($id)
+    {
+        $member = \App\Models\Profile::findOrFail($id);
+        $clubs = \App\Models\Club::orderBy('name')->get();
+        return view('members.form', compact('member', 'clubs'));
+    }
+
+    // outros métodos (store, update, destroy) conforme necessário...
 }

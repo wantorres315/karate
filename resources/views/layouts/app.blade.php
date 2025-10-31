@@ -49,7 +49,7 @@
                 </button>
             </div>
             <div class="flex items-center space-x-4">
-                <form method="GET" action="{{ route('members.index') }}" class="flex items-center gap-2">
+                <form method="GET" action="{{ route('members.index') }}" class="hidden md:flex items-center gap-2">
                     <input name="q" value="{{ request('q') }}" placeholder="Pesquisar por nome, KAK, e-mail..." class="px-3 py-2 border rounded-md w-64" />
                     <button type="submit" class="px-3 py-2 rounded-md bg-gray-800 text-white">Pesquisar</button>
                 </form>

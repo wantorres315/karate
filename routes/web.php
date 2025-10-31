@@ -58,7 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
-    Route::prefix('members')->controller(StudentController::class)->group(function () {
+   Route::prefix('members')->controller(MembersController::class)->group(function () {
         Route::get('/', 'index')->name('members.index');
         Route::get('/create', 'create')->name('members.create');
         Route::post('/', 'store')->name('members.store');
@@ -102,7 +102,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('graduations', GraduationController::class);
     Route::resource('clubs', ClubController::class);
     
-    Route::resource('members', MembersController::class)->except(['show']); // ajuste conforme necessidade
     
 Route::prefix("/events")->controller(AgendaController::class)->group(function(){
     Route::get('/',  'index');
