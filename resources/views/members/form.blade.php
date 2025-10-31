@@ -75,6 +75,12 @@
 
                         </div>
                         <input type="hidden" name="photo_data" id="photo_data" />
+                        <div>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" checked>
+                                <span>Ativo</span>
+                            </label>
+                        </div>
                     </div>
                     
                     <!-- fim foto -->
@@ -82,73 +88,95 @@
                         
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        
+                        <x-input label="Nome" name="name" value="{{ old('ctl00$MainContent$FormView1$imeTextBox', $member->name ?? '') }}" />
+                        <x-select label="Sexo" name="gender" :options="[['True','Masculino'],['False','Feminino'],['','Outro']]" selected="True" />
+                        <x-input label="Numero KAK" name="number_kak"  value="{{ old('number_kak', $member->number_kak ?? '') }}" :disabled="isset($member)" />
                         <div>
-                            <label class="flex items-center space-x-2">
-                                <input type="checkbox" checked>
-                                <span>Ativo</span>
-                            </label>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Clube</label>
+                         
+                            <select 
+                                name="club_id" 
+                                @if(!auth()->user()->hasAnyRole([
+                                    App\Role::TREINADOR_GRAU_I->value,
+                                    App\Role::TREINADOR_GRAU_II->value,
+                                    App\Role::TREINADOR_GRAU_III->value,
+                                    App\Role::ARBITRATOR->value,
+                                    App\Role::SUPER_ADMIN->value,
+                                ])); disabled @endif
+                                class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm p-2 bg-white dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
+                            >
+                                <option value="">Selecione</option>
+                                @foreach ($clubs as $clube)
+                                    <option value="{{ $clube->id }}" {{ (isset($member) && $member->club_id == $clube->id) ? 'selected' : '' }}>
+                                        {{ $clube->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                        <x-input label="Nome" name="ctl00$MainContent$FormView1$imeTextBox" value="{{ old('ctl00$MainContent$FormView1$imeTextBox', $member->name ?? '') }}" />
-                        <x-select label="Sexo" name="ctl00$MainContent$FormView1$drpSpol" :options="[['True','Masculino'],['False','Feminino'],['','Outro']]" selected="True" />
-                        <x-input label="ID membro" name="ctl00$MainContent$FormView1$broj1TextBox" value="{{ old('ctl00$MainContent$FormView1$broj1TextBox', $member->number_kak ?? '') }}" />
-                        <x-input label="ID 2" name="ctl00$MainContent$FormView1$broj2TextBox" value="1491" />
-                        <x-input label="Data de nascimento" name="ctl00$MainContent$FormView1$RadDatePicker2$dateInput" value="{{ old('ctl00$MainContent$FormView1$RadDatePicker2$dateInput', $member->birth_date ?? '') }}" />
-                        <x-input label="SSN" name="ctl00$MainContent$FormView1$jmbgTextBox" />
-                        <x-input label="Adjunto" name="ctl00$MainContent$FormView1$radDate$dateInput" value="01/05/2010" />
-                        <x-input label="Data de cancelamento" name="ctl00$MainContent$FormView1$RadDatePicker1$dateInput" />
+                        <x-date-input label="Data de nascimento" name="birth_date" value="{{ old('birth_date', $member->birth_date ?? '') }}" />
+                        <x-date-input label="Data de Admissão" name="admission_date" value="{{ old('admission_date', $member->admission_date ?? '') }}" />
+                        <x-input label="Nacionalidade" name="nationality" value="{{ old('nationality', $member->nationality ?? '') }}" />
+                        <x-input label="Profissão" name="profession" value="{{ old('profession', $member->profession ?? '') }}" />
                     </div>
                 </x-card>
-
                 <x-card title="Contato">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <x-input label="Gsm" name="ctl00$MainContent$FormView1$smsTextBox" value="919297093" />
-                        <x-input label="E-mail" name="ctl00$MainContent$FormView1$emailTextBox" value="micaelc.santos@gmail.com" />
-                        <x-input label="Telefone" name="ctl00$MainContent$FormView1$telefonTextBox" value="968739739" />
+                        <x-input label="Telefone" name="phone_number" value="{{ old('phone_number', $member->phone_number ?? '') }}" />
+                        <x-input label="Celular" name="cell_number" value="{{ old('cell_number', $member->cell_number ?? '') }}" />
+                        <x-input label="E-mail" name="email" value="{{ old('email',  $member->user->email ?? '')}}" />
+                        <x-input label="Contato" name="contact" value="{{ old('contact', $member->contact ?? '') }}" />
+                        <x-input label="Número do Contato" name="contact_number" value="{{ old('contact_number', $member->contact_number ?? '') }}" />
+                        <x-input label="Email do Contato" name="contact_email" value="{{ old('contact_email', $member->contact_email ?? '') }}" />
                     </div>
                 </x-card>
 
                 <x-card title="Endereço">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <x-input label="Endereço" name="ctl00$MainContent$FormView1$adresaTextBox" value="{{ old('ctl00$MainContent$FormView1$adresaTextBox', $member->address ?? '') }}" />
-                        <x-input label="Cidade" name="ctl00$MainContent$FormView1$gradTextBox" value="Cavadas" />
-                        <x-input label="CEP" name="ctl00$MainContent$FormView1$zipTextBox" value="3105-160" />
-                        <x-input label="Região" name="ctl00$MainContent$FormView1$republikaTextBox" />
+                        <x-input label="Endereço" name="address" value="{{ old('address', $member->address ?? '') }}" />
+                        <x-input label="Cidade" name="city" value="{{ old('city', $member->city ?? '') }}" />
+                        <x-input label="Distrito" name="district" value="{{ old('district', $member->district ?? '') }}" />
+                        <x-input label="Código Postal" name="postal_code" value="{{ old('postal_code', $member->postal_code ?? '') }}" />
                     </div>
                 </x-card>
 
                 <x-card title="Pais">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <x-input label="Nome da mãe" name="ctl00$MainContent$FormView1$imemajkeTextBox" value="Maria Natália Mendes Cordeiro" />
-                        <x-input label="Gsm mãe" name="ctl00$MainContent$FormView1$telmajkeTextBox" />
-                        <x-input label="Nome do pai" name="ctl00$MainContent$FormView1$imeocaTextBox" value="Carlos Manuel Martinho dos Santos" />
-                        <x-input label="Gsm pai" name="ctl00$MainContent$FormView1$telocaTextBox" />
+                        <x-input label="Nome da mãe" name="father_name" value="{{ old('father_name', $member->father_name ?? '') }}" />
+                        <x-input label="Nome do pai" name="mother_name" value="{{ old('mother_name', $member->mother_name ?? '') }}" />
                     </div>
                 </x-card>
 
                <x-card title="Outro">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <x-input label="Tamanho do cinturão" name="ctl00$MainContent$FormView1$velicinaPTextBox1" />
-                        <x-input label="Código de barras" name="ctl00$MainContent$FormView1$barcodeTextBox1" />
-                        <x-input label="Mensagem ao acessar" name="ctl00$MainContent$FormView1$txtCheckInMsg" />
+                        <x-input label="Tamanho do cinturão" name="bolt_size" value="{{ old('bolt_size', $member->bolt_size ?? '') }}" />
                     </div>
                 </x-card>
 
-                <x-card title="Notas">
-                    <textarea name="ctl00$MainContent$FormView1$biljeskeTextBox" rows="2" class="w-full border rounded p-2">Emergency contact: 919297093; Status: 2022</textarea>
-                </x-card>
+                
             </div>
-
+                    @php
+                        $documentTypes = collect(App\DocumentoIdentificacao::cases())
+                            ->map(fn($docType) => [$docType->value, $docType->name])
+                            ->toArray();
+                    @endphp
+                    
             <!-- Dados Complementares -->
             <div class="space-y-6">
                 <x-card title="Documentos e Identificação">
-                    <x-input label="N.º FNKP" name="ctl00$MainContent$repPolja$ctl01$radNumPolje" value="{{ old('ctl00$MainContent$repPolja$ctl01$radNumPolje', $member->number_fnkp ?? '') }}" />
-                    <x-input label="N.º TPTD" name="ctl00$MainContent$repPolja$ctl02$radNumPolje" />
-                    <x-input label="N.º JKS" name="ctl00$MainContent$repPolja$ctl03$radNumPolje" />
-                    <x-input label="N.º Contribuinte" name="ctl00$MainContent$repPolja$ctl04$radNumPolje" value="244 373 345,00" />
+                    <x-input label="N.º FNKP" name="number_fnkp" value="{{ old('number_fnkp', $member->number_fnkp ?? '') }}" />
+                    <x-input label="N.º TPTD" name="number_tptd" value="{{ old('number_tptd', $member->number_tptd ?? '') }}" />
+                    <x-input label="N.º JKS" name="number_jks" value="{{ old('number_jks', $member->number_jks ?? '') }}" />
+                    <x-input label="N.º Contribuinte" name="nif" value="{{ old('nif', $member->nif ?? '') }}" />
                     <x-select label="Árbitro" name="ctl00$MainContent$repPolja$ctl05$drpPolje" :options="[['',''],['7011','Oficial de Mesa'],['7012','Juiz'],['7013','Árbitro B'],['7014','Árbitro A']]" selected="" />
                     <x-select label="Grau de Treinador" name="ctl00$MainContent$repPolja$ctl06$drpPolje" :options="[['',''],['7015','Grau I'],['7016','Grau II'],['7017','Grau III'],['7018','Grau IV']]" selected="" />
-                    <x-select label="Documento de Identificação" name="ctl00$MainContent$repPolja$ctl07$drpPolje" :options="[['',''],['7085','Cartão de Cidadão'],['7086','Passaporte'],['7087','Título de Residência'],['7088','Outro']]" selected="7085" />
-                    <x-input label="N.º Doc. Identificação" name="ctl00$MainContent$repPolja$ctl08$radNumPolje" value="{{ old('ctl00$MainContent$repPolja$ctl08$radNumPolje', $member->document_number ?? '') }}" />
+                    <x-select 
+                        label="Documento de Identificação" 
+                        name="document_type" 
+                        :options="$documentTypes" 
+                        selected="{{ old('document_type', $member->document_type ?? '') }}" 
+                    />
+                    <x-input label="N.º Doc. Identificação" name="document_number" value="{{ old('document_number', $member->document_number ?? '') }}" />
                 </x-card>
 
                 <x-card title="Cintos">
@@ -202,9 +230,8 @@
                     <x-select label="Família" name="ctl00$MainContent$FormView1$drpParent" :options="[['',' '],['0','<Adicionar família>'],['21107','Família Ascenso Costa'],['19311','Familia Leal'],['25619','Familia Motta'],['20598','Familia Neves'],['20127','Familia Nunes dos Santos'],['19323','Familia Pinheiro da Cruz'],['20451','Família Santos'],['19314','Familia Varela']]" selected="" />
                 </x-card>
 
-                <x-card title="Condições médicas">
-                    <x-input label="Condições médicas" name="ctl00$MainContent$FormView1$medicalconTextBox1" />
-                    <x-input label="Exame médico válido até" name="ctl00$MainContent$FormView1$RadDatePicker3$dateInput" />
+                <x-card title="Notas">
+                    <textarea name="observations" rows="2" class="w-full border rounded p-2">{{ old('observations', $member->observations ?? '') }}</textarea>
                 </x-card>
 
                 
