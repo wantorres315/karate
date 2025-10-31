@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL('image/png');
 
-        // Atualiza preview
-        photoPreview.src = dataUrl;
+        // Atualiza preview: insere a imagem no div
+        photoPreview.innerHTML = `<img src="${dataUrl}" alt="Foto capturada" class="rounded-full w-full h-full object-cover" />`;
         photoPreview.classList.remove('hidden');
         cameraContainer.classList.add('hidden');
         captureBtn.classList.add('hidden');
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const dataUrl = e.target.result;
-            photoPreview.src = dataUrl;
+            photoPreview.innerHTML = `<img src="${dataUrl}" alt="Foto enviada" class="rounded-full w-full h-full object-cover" />`;
             photoPreview.classList.remove('hidden');
             cameraContainer.classList.add('hidden');
             captureBtn.classList.add('hidden');
