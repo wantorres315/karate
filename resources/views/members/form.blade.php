@@ -226,8 +226,13 @@
                     </div>
                 </x-card>
 
-                 <x-card title="Família">
-                    <x-select label="Família" name="ctl00$MainContent$FormView1$drpParent" :options="[['',' '],['0','<Adicionar família>'],['21107','Família Ascenso Costa'],['19311','Familia Leal'],['25619','Familia Motta'],['20598','Familia Neves'],['20127','Familia Nunes dos Santos'],['19323','Familia Pinheiro da Cruz'],['20451','Família Santos'],['19314','Familia Varela']]" selected="" />
+                <x-card title="Família">
+                    <x-select 
+                        label="Família" 
+                        name="family_user_id" 
+                        :options="$families->map(fn($family) => [$family->id, $family->name])->prepend(['', '<Selecionar família>'])->toArray()" 
+                        selected="{{ old('family_user_id', $member->familyMember->family_id ?? '') }}" 
+                    />
                 </x-card>
 
                 <x-card title="Notas">

@@ -40,14 +40,16 @@ class MembersController extends Controller
     public function create()
     {
         $clubs = \App\Models\Club::orderBy('name')->get();
-        return view('members.form', compact('clubs'));
+        $users = \App\Models\User::orderBy('name')->get();
+        return view('members.form', compact('clubs', 'users'));
     }
 
     public function edit($id)
     {
         $member = \App\Models\Profile::findOrFail($id);
         $clubs = \App\Models\Club::orderBy('name')->get();
-        return view('members.form', compact('member', 'clubs'));
+        $families = \App\Models\Family::orderBy('name')->get();
+        return view('members.form', compact('member', 'clubs', 'families'));
     }
 
     // outros métodos (store, update, destroy) conforme necessário...

@@ -84,6 +84,16 @@ class Profile extends Model
         return $this->belongsToMany(ClassModel::class, 'class_profile', 'profile_id', 'class_id');
     }
 
+    public function families()
+    {
+        return $this->belongsToMany(FamilyMember::class, 'family_members');
+    }
+
+    public function familyMember()
+    {
+        return $this->hasOne(FamilyMember::class, 'profile_id', 'id');
+    }
+
     protected $casts = [
         'is_treinador' => 'boolean',
     ];

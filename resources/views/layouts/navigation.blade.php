@@ -38,8 +38,9 @@
                 <!-- submenu stays inside li and is hidden until opened -->
                 <ul class="sub-menu bg-black/80 mt-1 rounded-sm overflow-hidden" x-show="openMenu === 'menuClanovi'" x-cloak x-transition>
                     <li id="clanoviaspx"><a href="{{route('members.index')}}" class="block px-3 py-2 text-white">Membros</a></li>
-                    <li id="leadsaspx"><a href="#" class="block px-3 py-2 text-white">Leads</a></li>
-                    <li id="familijeaspx"><a href="#" class="block px-3 py-2 text-white">Famílias</a></li>
+                    <li id="familijeaspx">
+                        <a href="{{ route('familias.index') }}" class="block px-3 py-2 text-white">Famílias</a>
+                    </li>
                     <li id="grupeaspx"><a href="#" class="block px-3 py-2 text-white">Grupos</a></li>
                     <li id="poljaaspx"><a href="#" class="block px-3 py-2 text-white">Campos</a></li>
                     <li id="karticeaspx"><a href="#" class="block px-3 py-2 text-white">Cartões</a></li>

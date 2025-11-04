@@ -13,11 +13,15 @@ use App\Http\Controllers\BoletoController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\MembersController;
+use App\Http\Controllers\FamilyController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
 Route::view('/offline', 'offline');
 
 
@@ -48,7 +52,7 @@ Route::get('/pwa-assets', function () {
 });
 
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
     });
@@ -103,13 +107,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('clubs', ClubController::class);
     
     
-Route::prefix("/events")->controller(AgendaController::class)->group(function(){
-    Route::get('/',  'index');
-    Route::post('/', 'store');
-    Route::put('/{event}','update');
-    Route::delete('/{event}', 'destroy');
-    Route::post('/export-pdf', 'exportPdf')->name('events.exportPdf');
-});
+    Route::prefix("/events")->controller(AgendaController::class)->group(function(){
+        Route::get('/',  'index');
+        Route::post('/', 'store');
+        Route::put('/{event}','update');
+        Route::delete('/{event}', 'destroy');
+        Route::post('/export-pdf', 'exportPdf')->name('events.exportPdf');
+    });
 
     Route::post('/check-email', [StudentController::class, 'checkEmail'])->name('check-email');
         Route::get('/member-pdf/{profile}', [PdfController::class, 'memberPdf'])->name('member.pdf');
@@ -122,6 +126,38 @@ Route::prefix("/events")->controller(AgendaController::class)->group(function(){
         Route::get('/{boleto}/comprovante/download', [BoletoController::class, 'downloadComprovante'])->name('comprovante.download');
     });
 
+    Route::prefix('familias')->controller(FamilyController::class)->group(function () {
+        Route::get('/', 'index')->name('familias.index');
+        Route::get('/create', 'create')->name('familias.create');
+        Route::post('/', 'store')->name('familias.store');
+        Route::get('/{family}/edit', 'edit')->name('familias.edit');
+        Route::put('/{family}', 'update')->name('familias.update');
+        Route::delete('/{family}', 'destroy')->name('familias.destroy');
+        Route::get('/{family}/members', 'members')->name('familias.members');
+        Route::get('/{family}/students', 'getStudents')->name('familias.students');
+        Route::get('/{family}/addCoach', 'addCoach')->name('familias.addCoach');
+        Route::post('/{family}/store-coach', 'storeCoach')->name('familias.storeCoach');
+        Route::delete('/{family}/remove-coach/{profile}', 'removeCoach')->name('familias.removeCoach');
+        Route::get('/{family}/graduations', 'graduations')->name('familias.graduations');
+        Route::post('/{family}/graduations', 'addGraduation')->name('familias.addGraduation');
+        Route::delete('/{family}/graduations/{graduationUser}', 'removeGraduation')->name('familias.removeGraduation');
+        Route::post('/{family}/toggle-treinador', 'toggleTreinador')->name('familias.toggle-treinador');
+        Route::get('/{family}/attendance', 'attendance')->name('familias.attendance');
+        Route::post('/{family}/attendance', 'saveAttendance')->name('familias.saveAttendance');
+        Route::get('/{family}/pdf', 'memberPdf')->name('familias.pdf');
+        Route::post('/{family}/reset-senha',  'resetSenha')->name('familias.resetSenha');
+
+        Route::prefix('boletos')->name('familias.boletos.')->group(function () {
+            Route::get('/', [BoletoController::class, 'index'])->name('index');
+            Route::post('/gerar', [BoletoController::class, 'gerar'])->name('gerar');
+            Route::post('/{boleto}/pagar', [BoletoController::class, 'marcarPago'])->name('pagar');
+            Route::post('/{boleto}/comprovante', [BoletoController::class, 'uploadComprovante'])->name('comprovante');
+            Route::get('/{boleto}/download', [BoletoController::class, 'downloadBoleto'])->name('download');
+            Route::get('/{boleto}/comprovante/download', [BoletoController::class, 'downloadComprovante'])->name('comprovante.download');
+        });
+    });
+
+
 });
 
-require __DIR__.'/auth.php';
+    require __DIR__.'/auth.php';
