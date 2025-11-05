@@ -16,8 +16,6 @@ class DatabaseSeeder extends Seeder
         $this->call(GraduationSeeder::class);
         $this->call(EscalaoSeeder::class);
 
-        Artisan::call('app:run-clubs', ['file' => 'storage/clube.csv']);
-        echo Artisan::output();
 
 
     }

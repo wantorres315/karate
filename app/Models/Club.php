@@ -43,5 +43,9 @@ class Club extends Model
     {
         return $this->hasMany(Profile::class);
     }
-   
+
+    public function trainers()
+    {
+        return $this->belongsToMany(Profile::class, 'club_instructors', 'club_id', 'profile_id');
+    }
 }

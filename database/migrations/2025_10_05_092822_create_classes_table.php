@@ -20,9 +20,9 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('class_profile', function (Blueprint $table) {
+        Schema::create('class_profiles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('class_id')->constrained('classes')->cascadeOnDelete();
+            $table->foreignId('classe_id')->constrained('classes')->cascadeOnDelete();
             $table->foreignId('profile_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
 
@@ -32,7 +32,7 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('class_profile');
+        Schema::dropIfExists('class_profiles');
         Schema::dropIfExists('classes');
     }
 };

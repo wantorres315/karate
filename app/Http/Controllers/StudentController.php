@@ -401,46 +401,7 @@ public function toggleTreinador(Request $request, Profile $profile)
                          ->with('success', 'Usuário deletado com sucesso!');
     }
 
-    public function graduations(Profile $profile)
-    {
-        $graduacoes = $profile->graduations()
-            ->with('graduation')
-            ->orderByDesc('date')
-            ->get();
-
-        $todasGraduacoes = Graduation::all();
-        return view('members.graduation', compact('profile', 'graduacoes', 'todasGraduacoes'));
-    }
-
-    public function addGraduation(Request $request, Profile $profile)
-    {
-        $request->validate([
-            'graduation_id' => 'required|exists:graduations,id',
-            'date' => 'required|date',
-        ]);
-
-        GraduationUser::create([
-            'profile_id' => $profile->id,
-            'graduation_id' => $request->graduation_id,
-            'date' => $request->date,
-            'value' => $request->value,
-            'kihon' => $request->kihon,
-            'kata' => $request->kata,
-            'kumite' => $request->kumite,
-            'location' => $request->location,
-        ]);
-
-        return redirect()->route('members.graduations', $profile)
-            ->with('success', 'Graduação adicionada com sucesso!');
-    }
-
-    public function removeGraduation(Profile $profile, GraduationUser $graduationUser)
-    {
-        $graduationUser->delete();
-
-        return redirect()->route('members.graduations', $profile)
-            ->with('success', 'Graduação removida com sucesso!');
-    }
+    
 }
 
 

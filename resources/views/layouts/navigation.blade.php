@@ -1,7 +1,7 @@
 <aside 
     id="main-sidenav"
     x-data="{ openMenu: null }"
-    class="fixed inset-y-0 left-0 bg-black text-red-600 shadow-xl mt-8 flex flex-col transform transition-transform duration-300 ease-in-out z-40"
+    class="fixed inset-y-0 left-0 w-64 xl:w-72 bg-black text-red-600 shadow-xl mt-8 flex flex-col transform transition-transform duration-300 ease-in-out z-40"
     :class="sidenavOpen ? 'translate-x-0' : '-translate-x-full'"
 >
 
@@ -36,16 +36,18 @@
                 </div>
 
                 <!-- submenu stays inside li and is hidden until opened -->
-                <ul class="sub-menu bg-black/80 mt-1 rounded-sm overflow-hidden" x-show="openMenu === 'menuClanovi'" x-cloak x-transition>
-                    <li id="clanoviaspx"><a href="{{route('members.index')}}" class="block px-3 py-2 text-white">Membros</a></li>
-                    <li id="familijeaspx">
-                        <a href="{{ route('familias.index') }}" class="block px-3 py-2 text-white">Famílias</a>
+                <ul class="sub-menu mt-2 ml-2 pl-8 pr-2 py-2 bg-gray-900/80 rounded-md ring-1 ring-white/10 backdrop-blur-sm space-y-1"
+                    x-show="openMenu === 'menuClanovi'" x-cloak x-transition>
+                    <li id="clanoviaspx">
+                        <a href="{{route('members.index')}}" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition">
+                            <span>Membros</span>
+                        </a>
                     </li>
-                    <li id="grupeaspx"><a href="#" class="block px-3 py-2 text-white">Grupos</a></li>
-                    <li id="poljaaspx"><a href="#" class="block px-3 py-2 text-white">Campos</a></li>
-                    <li id="karticeaspx"><a href="#" class="block px-3 py-2 text-white">Cartões</a></li>
-                    <li id="mjerenjaaspx"><a href="#" class="block px-3 py-2 text-white">Medições</a></li>
-                    <li id="gdpraspx"><a href="#" class="block px-3 py-2 text-white">GDPR</a></li>
+                    <li id="familijeaspx">
+                        <a href="{{ route('familias.index') }}" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition">
+                            <span>Famílias</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
 
@@ -64,16 +66,33 @@
                     </div>
                     <i class="fas fa-chevron-down arrow text-white" :class="openMenu === 'menuClasses' ? 'rotate-180' : ''"></i>
                 </div>
-                <ul class="sub-menu bg-black/80 mt-1 rounded-sm overflow-hidden" x-show="openMenu === 'menuClasses'" x-cloak x-transition>
-                    <li id="classesaspx"><a href="#" class="block px-3 py-2 text-white">Treinamentos</a></li>
-                    <li id="scheduleaspx"><a href="#" class="block px-3 py-2 text-white">Horário</a></li>
-                    <li id="prisutnostaspx"><a href="#" class="block px-3 py-2 text-white">A frequência das aulas</a></li>
-                    <li id="feedbacksaspx"><a href="#" class="block px-3 py-2 text-white">Comentários</a></li>
-                    <li id="treneriaspx"><a href="#" class="block px-3 py-2 text-white">Treinadores</a></li>
-                    <li id="trainingplansaspx"><a href="#" class="block px-3 py-2 text-white">Planos de treinamento</a></li>
-                    <li id="bookingaspx"><a href="#" class="block px-3 py-2 text-white">Formulários de reserva</a></li>
-                    <li id="bookingclassaspx"><a href="#" class="block px-3 py-2 text-white">Próximas treinamentos</a></li>
-                    <li id="eventsaspx"><a href="#" class="block px-3 py-2 text-white">Eventos</a></li>
+                <ul class="sub-menu mt-2 ml-2 pl-8 pr-2 py-2 bg-gray-900/80 rounded-md ring-1 ring-white/10 backdrop-blur-sm space-y-1"
+                    x-show="openMenu === 'menuClasses'" x-cloak x-transition>
+                    <li id="classesaspx">
+                        <a href="{{route('classes.index')}}" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition">
+                            <span>Treinamentos</span>
+                        </a>
+                    </li>
+                    <li id="scheduleaspx">
+                        <a href="{{route('classes.schedule')}}" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition">
+                            <span>Horário</span>
+                        </a>
+                    </li>
+                    <li id="prisutnostaspx">
+                        <a href="{{route('classes.attendance.view')}}" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition">
+                            <span>A frequência das aulas</span>
+                        </a>
+                    </li>
+                    <li id="treneriaspx">
+                        <a href="{{ route('trainers.index') }}" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition">
+                            <span>Treinadores</span>
+                        </a>
+                    </li>
+                    <li id="eventsaspx">
+                        <a href="{{route('schedule.index')}}" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition">
+                            <span>Eventos</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
 
@@ -92,15 +111,14 @@
                     </div>
                     <i class="fas fa-chevron-down arrow text-white" :class="openMenu === 'menuFinance' ? 'rotate-180' : ''"></i>
                 </div>
-                <ul class="sub-menu bg-black/80 mt-1 rounded-sm overflow-hidden" x-show="openMenu === 'menuFinance'" x-cloak x-transition>
-                    <li id="racuniaspx"><a href="#" class="block px-3 py-2 text-white">Faturas</a></li>
-                    <li id="racunidodajaspx"><a href="#" class="block px-3 py-2 text-white">Pagamentos</a></li>
-                    <li id="financijeaspx"><a href="#" class="block px-3 py-2 text-white">Custos e receitas</a></li>
-                    <li id="feesaspx"><a href="#" class="block px-3 py-2 text-white">Pacotes de assinatura</a></li>
-                    <li id="poreziaspx"><a href="#" class="block px-3 py-2 text-white">Impostos</a></li>
-                    <li id="racuniknjigaaspx"><a href="#" class="block px-3 py-2 text-white">Facturas recebidas</a></li>
-                    <li id="planaspx"><a href="#" class="block px-3 py-2 text-white">Planos financeiros</a></li>
-                    <li id="financijevrsteaspx"><a href="#" class="block px-3 py-2 text-white">Configurações</a></li>
+                <ul class="sub-menu mt-2 ml-2 pl-8 pr-2 py-2 bg-gray-900/80 rounded-md ring-1 ring-white/10 backdrop-blur-sm space-y-1"
+                    x-show="openMenu === 'menuFinance'" x-cloak x-transition>
+                    <li id="racuniaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Faturas</span></a></li>
+                    <li id="racunidodajaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Pagamentos</span></a></li>
+                    <li id="financijeaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Custos e receitas</span></a></li>
+                    <li id="feesaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Pacotes de assinatura</span></a></li>
+                    <li id="poreziaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Impostos</span></a></li>
+                    <li id="racuniknjigaaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Facturas recebidas</span></a></li>
                 </ul>
             </li>
 
@@ -119,12 +137,38 @@
                     </div>
                     <i class="fas fa-chevron-down arrow text-white" :class="openMenu === 'menuAchievements' ? 'rotate-180' : ''"></i>
                 </div>
-                <ul class="sub-menu bg-black/80 mt-1 rounded-sm overflow-hidden" x-show="openMenu === 'menuAchievements'" x-cloak x-transition>
-                    <li id="pojaseviaspx"><a href="#" class="block px-3 py-2 text-white">Promoções</a></li>
-                    <li id="kyudanaspx"><a href="#" class="block px-3 py-2 text-white">Sistema de cinto</a></li>
-                    <li id="diplomeaspx"><a href="#" class="block px-3 py-2 text-white">Certificados</a></li>
-                    <li id="rezultatiaspx"><a href="#" class="block px-3 py-2 text-white">Competições</a></li>
-                    <li id="disciplineaspx"><a href="#" class="block px-3 py-2 text-white">Categorias</a></li>
+                <ul class="sub-menu mt-2 ml-2 pl-8 pr-2 py-2 bg-gray-900/80 rounded-md ring-1 ring-white/10 backdrop-blur-sm space-y-1"
+                    x-show="openMenu === 'menuAchievements'" x-cloak x-transition>
+                    <li id="diplomeaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Certificados</span></a></li>
+                    <li id="rezultatiaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Competições</span></a></li>
+                </ul>
+            </li>
+
+            <li id="menuConfigurations">
+                <div class="iocn-link flex items-center justify-between cursor-pointer px-3 py-2 rounded hover:bg-gray-800"
+                     @click.prevent="openMenu = (openMenu === 'menuConfigurations' ? null : 'menuConfigurations')"
+                     :aria-expanded="(openMenu === 'menuConfigurations').toString()"
+                     role="button"
+                     tabindex="0"
+                >
+                    <div class="flex items-center">
+                        <a href="#" class="flex items-center text-white">
+                            <i class="fas fa-cog w-6 text-center"></i>
+                            <span class="ml-3 link_name">Configurações</span>
+                        </a>
+                    </div>
+                    <i class="fas fa-chevron-down arrow text-white" :class="openMenu === 'menuConfigurations' ? 'rotate-180' : ''"></i>
+                </div>
+                <ul class="sub-menu mt-2 ml-2 pl-8 pr-2 py-2 bg-gray-900/80 rounded-md ring-1 ring-white/10 backdrop-blur-sm space-y-1"
+                    x-show="openMenu === 'menuConfigurations'" x-cloak x-transition>
+                    <li id="pojaseviaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Estilos</span></a></li>
+                    <li id="kyudanaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Graduações</span></a></li>
+                    <li id="diplomeaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Parâmetros de classificação</span></a></li>
+                    <li id="rezultatiaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Sistema de cinto</span></a></li>
+                    <li id="disciplineaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Categorias</span></a></li>
+                    <li id="velicineaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Tipos de transações</span></a></li>
+                    Tipos de receitas
+                    Tipos de despesas
                 </ul>
             </li>
 

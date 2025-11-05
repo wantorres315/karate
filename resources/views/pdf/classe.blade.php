@@ -27,9 +27,10 @@
 
         td, th { 
             border: 1px solid #ccc; 
-            padding: 2px; 
-            vertical-align: top; 
+            padding: 4px; 
+            vertical-align: middle;
             word-wrap: break-word;
+            text-align: center;
         }
 
         h3 { 
@@ -40,46 +41,17 @@
             font-size: 12px;
         }
 
-        .label { 
-            font-weight: bold; 
-            display: inline-block; 
-            margin-right: 5px; 
-        }
-
-        .value {
+        .percentage {
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
             display: inline-block;
-            padding: 2px 6px;
-            min-width: 60px;
-            border-radius: 4px;
-            
-            font-size: 9px;
+            min-width: 50px;
         }
 
-        .value.full, 
-        .value.full_100 {
-            display: block;
-            width: 100%;
-            box-sizing: border-box;
-            padding-left: 4px;
-            height: 20px;
-            border-radius: 4px;
-           
-            font-size: 9px;
-        }
-
-        .photo-box {
-            text-align: center;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
-
-        .photo-box img {
-            max-width: 100px;
-            max-height: 110px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
+        .percentage.high { background-color: #10b981; color: white; }
+        .percentage.medium { background-color: #f59e0b; color: white; }
+        .percentage.low { background-color: #ef4444; color: white; }
 
         p { margin: 2px 0; font-size: 9px; }
     </style>
@@ -94,7 +66,7 @@
             </td>
         </tr>
         <tr>
-            <td style="font-size: 12px;">Turma: {{$classe->name}}</td>
+            <td style="font-size: 12px; text-align: left;">Turma: {{$classe->name}}</td>
            
             <td style="font-size: 9px; text-align: right;">
                 <?php
@@ -106,74 +78,102 @@
             </td>
         </tr>
         <tr>
-             <td style="font-size: 12px;">Descricao: {{$classe->description}}</td>
-             <td>Instrutores: <br>{!! implode("<br>",$classe->instructors->pluck("name")->toArray()) ?? '—' !!}</td></td>
+             <td style="font-size: 12px; text-align: left;">Descrição: {{$classe->description}}</td>
+             <td style="text-align: left;">Instrutores: <br>{!! implode("<br>",$classe->instructors->pluck("name")->toArray()) ?? '—' !!}</td>
         </tr>
         <tr>
-             <td style="font-size: 12px;">Horario: {{ $classe->start_time }} - {{ $classe->end_time }}</td>
-             <td>Dias da Semana: <br>
-                            @php
-                            $daysMap = [
-                                'Monday' => 'Segunda-feira',
-                                'Tuesday' => 'Terça-feira',
-                                'Wednesday' => 'Quarta-feira',
-                                'Thursday' => 'Quinta-feira',
-                                'Friday' => 'Sexta-feira',
-                                'Saturday' => 'Sábado',
-                                'Sunday' => 'Domingo',
-                            ];
+             <td style="font-size: 12px; text-align: left;">Horário: {{ $classe->start_time }} - {{ $classe->end_time }}</td>
+             <td style="text-align: left;">Dias da Semana: <br>
+                @php
+                    $daysMap = [
+                        'Monday' => 'Segunda-feira',
+                        'Tuesday' => 'Terça-feira',
+                        'Wednesday' => 'Quarta-feira',
+                        'Thursday' => 'Quinta-feira',
+                        'Friday' => 'Sexta-feira',
+                        'Saturday' => 'Sábado',
+                        'Sunday' => 'Domingo',
+                        'monday' => 'Segunda-feira',
+                        'tuesday' => 'Terça-feira',
+                        'wednesday' => 'Quarta-feira',
+                        'thursday' => 'Quinta-feira',
+                        'friday' => 'Sexta-feira',
+                        'saturday' => 'Sábado',
+                        'sunday' => 'Domingo',
+                    ];
 
-                            $weekDays = [];
-                            if (!empty($classe->week_days)) {
-                                foreach (json_decode($classe->week_days) as $day) {
-                                    $weekDays[] = $daysMap[$day] ?? $day;
-                                }
+                    $weekDays = [];
+                    if (!empty($classe->week_days)) {
+                        $days = is_array($classe->week_days) 
+                            ? $classe->week_days 
+                            : json_decode($classe->week_days, true);
+                        
+                        if (is_array($days)) {
+                            foreach ($days as $day) {
+                                $weekDays[] = $daysMap[$day] ?? $day;
                             }
-                        @endphp
-                     {{ !empty($weekDays) ? implode(', ', $weekDays) : '—' }}
-                    </td></td>
+                        }
+                    }
+                @endphp
+                {{ !empty($weekDays) ? implode(', ', $weekDays) : '—' }}
+             </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="font-size: 11px; text-align: left;">
+                <strong>Total de Aulas:</strong> {{ $classeData['total_lessons'] }} | 
+                <strong>Total de Alunos:</strong> {{ $classeData['total_students'] }}
+            </td>
         </tr>
     </table>
-    <table style="width='100%'">
-        <tr><td colspan = 6 style="width='100%;text-align='center'"><h2>Alunos</h2></td></tr>
+    
+    <table style="width: 100%; margin-top: 10px;">
         <tr>
-            <td style="width: 65%;">
-            </td>
-            <td style="width: 65%;">
-                Nº KAK
-            </td>
-            <td style="width: 65%;">
-                Nome
-            </td>
-            <td style="width: 65%;">
-                Nascimento
-            </td>
-            <td style="width: 65%;">
-                Telefone
-            </td>
-            <td style="width: 65%;">
-                E-mail
-            </td>
+            <th colspan="7" style="background-color: #EC2111; color: white; font-size: 12px;">ALUNOS E FREQUÊNCIA</th>
         </tr>
-        @foreach($classe->students as $student)
+        <tr style="background-color: #f3f4f6;">
+            <th>Foto</th>
+            <th>Nº KAK</th>
+            <th>Nome</th>
+            <th>Nascimento</th>
+            <th>Telefone</th>
+            <th>E-mail</th>
+            <th>Frequência</th>
+        </tr>
+        @foreach($studentsData as $data)
+        @php
+            $student = $data['student'];
+            $percentage = $data['percentage'];
+            
+            // Definir classe CSS baseado na porcentagem
+            if ($percentage >= 75) {
+                $percentClass = 'high';
+            } elseif ($percentage >= 50) {
+                $percentClass = 'medium';
+            } else {
+                $percentClass = 'low';
+            }
+        @endphp
         <tr>
-            <td style= "text-align='center'">
-                <img src="{{ public_path($student->photo) }}" alt="Logo" style="width: 50px;">
-            </td>
             <td>
-                {{$student->number_kak}}
+                @if($student->photo && file_exists(public_path('storage/' . $student->photo)))
+                    <img src="{{ public_path('storage/' . $student->photo) }}" alt="Foto" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                @else
+                    <img src="{{ public_path('images/club.png') }}" alt="Sem foto" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                @endif
             </td>
+            <td>{{ $student->number_kak }}</td>
+            <td style="text-align: left;">{{ $student->name }}</td>
+            <td>{{ \Carbon\Carbon::parse($student->birth_date)->format("d/m/Y") }}</td>
+            <td style="font-size: 8px;">{{ $student->cell_number }}<br>{{ $student->phone_number }}</td>
+            <td style="font-size: 8px;">{{ $student->user->email }}</td>
             <td>
-                {{$student->name}}
-            </td>
-            <td>
-                {{\Carbon\Carbon::parse($student->birth_date)->format("d/m/Y")}}
-            </td>
-            <td>
-                {{$student->cell_number}}/ {{$student->phone_number}}
-            </td>
-            <td>
-                {{$student->user->email}}
+                <span class="percentage {{ $percentClass }}">
+                    {{ $percentage }}%
+                </span>
+                <br>
+                <span style="font-size: 8px; color: #666;">
+                    ({{ $data['attendances'] }}/{{ $data['total_lessons'] }})
+                </span>
             </td>
         </tr>
         @endforeach

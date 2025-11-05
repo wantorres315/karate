@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="{ sidenavOpen: false }" x-cloak x-init="sidenavOpen = innerWidth >= 1280; window.addEventListener('resize', () => { if (innerWidth >= 1280) sidenavOpen = true })">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="{ sidenavOpen: false }" x-cloak x-init="const mql = window.matchMedia('(min-width: 1280px)'); sidenavOpen = mql.matches; mql.addEventListener('change', e => { sidenavOpen = e.matches; })">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,6 +15,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>[x-cloak] { display: none !important; }</style>
+    @stack('styles')
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-gray-100 text-gray-900" @keydown.window.escape="sidenavOpen = false">
 

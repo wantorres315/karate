@@ -14,13 +14,11 @@ class ClassProfile extends Model
         'profile_id',
     ];
 
-    
-
     public function classes()
     {
         return $this->belongsToMany(
             Classe::class,
-            'class_profile',
+            'class_profiles',
             'profile_id',
             'classe_id'
         )->withTimestamps();

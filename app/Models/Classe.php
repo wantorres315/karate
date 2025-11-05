@@ -31,7 +31,7 @@ class Classe extends Model
     {
         return $this->belongsToMany(
             Profile::class,      // Modelo relacionado
-            'class_profile',     // Tabela pivot
+            'class_profiles',     // Tabela pivot
             'classe_id',         // Chave estrangeira da turma na pivot
             'profile_id'         // Chave estrangeira do aluno na pivot
         )->withTimestamps();

@@ -16,6 +16,7 @@ use App\Http\Controllers\MembersController;
 use App\Http\Controllers\FamilyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\TrainerController;
 
 
 Route::get('/', function () {
@@ -82,9 +83,13 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/', 'store')->name('classes.store');
             Route::get('/{classe}/edit', 'edit')->name('classes.edit');
             Route::put('/{classe}', 'update')->name('classes.update');
+            Route::get("/schedule", "schedule")->name("classes.schedule");
+            Route::get("/schedule-data", "scheduleData")->name("classes.schedule.data");
             Route::delete('/{classe}', 'destroy')->name('classes.destroy');
             Route::get('/{classe}/attendance', 'attendance')->name('classes.attendance');
-            Route::post('/{classe}/attendance', 'saveAttendance')->name('classes.saveAttendance');    
+            Route::post('/{classe}/attendance', 'saveAttendance')->name('classes.saveAttendance');
+            Route::get("/attendance-data/{classe}", "attendanceData")->name("classes.attendance.data");
+            Route::get("/attendance", "attendanceView")->name("classes.attendance.view");    
         });
         Route::controller(PdfController::class)->group(function(){
             Route::get("/pdf/{classe}", "classesPDF")->name("classes.pdf");
@@ -108,10 +113,10 @@ Route::middleware(['auth'])->group(function () {
     
     
     Route::prefix("/events")->controller(AgendaController::class)->group(function(){
-        Route::get('/',  'index');
-        Route::post('/', 'store');
-        Route::put('/{event}','update');
-        Route::delete('/{event}', 'destroy');
+        Route::get('/',  'index')->name('events.index');
+        Route::post('/', 'store')->name('events.store');
+        Route::put('/{event}','update')->name('events.update');
+        Route::delete('/{event}', 'destroy')->name('events.destroy');
         Route::post('/export-pdf', 'exportPdf')->name('events.exportPdf');
     });
 
@@ -156,6 +161,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{boleto}/comprovante/download', [BoletoController::class, 'downloadComprovante'])->name('comprovante.download');
         });
     });
+
+    Route::resource('trainers', TrainerController::class)->except(['show']);
+    Route::get('trainers/members', [TrainerController::class, 'members'])->name('trainers.members'); // busca membros não-treinadores
 
 
 });

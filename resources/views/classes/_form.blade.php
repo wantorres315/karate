@@ -71,7 +71,7 @@
         <div>
             <label class="block text-sm font-medium">Data de Início</label>
             <input type="date" name="start_date"
-                   value="{{ old('start_time', $classe->startDate ?? '') }}"
+                   value="{{ old('start_date', $classe->start_date ?? ($classe->startDate ?? '')) }}"
                    class="w-full border rounded-md p-2"
                    required>
         </div>
@@ -79,7 +79,7 @@
         <div>
             <label class="block text-sm font-medium">Data de Fim</label>
             <input type="date" name="end_date"
-                   value="{{ old('end_date', $classe->endDate ?? '') }}"
+                   value="{{ old('end_date', $classe->end_date ?? ($classe->endDate ?? '')) }}"
                    class="w-full border rounded-md p-2"
                    required>
         </div>
@@ -103,35 +103,32 @@
 
     {{-- Dias da Semana --}}
     <div>
-    <label class="block text-sm font-medium">Dias da Semana</label>
-    <div class="flex flex-wrap gap-3 mt-2">
-        @php
-    $savedWeekDays = is_array($class->week_days) 
-        ? $class->week_days 
-        : json_decode($class->week_days, true) ?? [];
-        @endphp
+        <label class="block text-sm font-medium">Dias da Semana</label>
+        <div class="flex flex-wrap gap-3 mt-2">
+            @php
+                $savedWeekDays = is_array($selectedWeekDays) ? $selectedWeekDays : [];
+            @endphp
 
-        @foreach([
-            'sunday' => 'Domingo',
-            'monday' => 'Segunda',
-            'tuesday' => 'Terça',
-            'wednesday' => 'Quarta',
-            'thursday' => 'Quinta',
-            'friday' => 'Sexta',
-            'saturday' => 'Sábado'
-        ] as $key => $label)
-            <label class="flex items-center gap-2">
-                <input type="checkbox" 
-                    name="week_days[]" 
-                    value="{{ $key }}" 
-                    class="rounded"
-                    {{ in_array($key, $savedWeekDays) ? 'checked' : '' }}>
-                <span>{{ $label }}</span>
-            </label>
-        @endforeach
+            @foreach([
+                'sunday' => 'Domingo',
+                'monday' => 'Segunda',
+                'tuesday' => 'Terça',
+                'wednesday' => 'Quarta',
+                'thursday' => 'Quinta',
+                'friday' => 'Sexta',
+                'saturday' => 'Sábado'
+            ] as $key => $label)
+                <label class="flex items-center gap-2">
+                    <input type="checkbox"
+                           name="week_days[]"
+                           value="{{ $key }}"
+                           class="rounded"
+                           {{ in_array($key, $savedWeekDays ?? []) ? 'checked' : '' }}>
+                    <span>{{ $label }}</span>
+                </label>
+            @endforeach
+        </div>
     </div>
-</div>
-
 
     {{-- Alunos --}}
     <div>
@@ -213,32 +210,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const response = await fetch(`/clubs/${clubId}/members`);
-            const data = await response.json();
+            if (!response.ok) throw new Error('Falha ao buscar membros');
+            const data = await response.json().catch(() => ({}));
 
-            // Render alunos
-            if (data.members.length === 0) {
+            const members = Array.isArray(data?.students) ? data.students : [];
+            const instructors = Array.isArray(data?.instructors) ? data.instructors : [];
+
+            // Alunos
+            if (members.length === 0) {
                 studentsContainer.innerHTML = '<p class="text-gray-500 text-sm">Nenhum aluno encontrado neste clube.</p>';
             } else {
-                studentsContainer.innerHTML = data.members.map(student => `
+                studentsContainer.innerHTML = members.map((student) => `
                     <div class="mb-1">
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" name="students[]" value="${members.id}" ${selectedmembers.includes(members.id) ? 'checked' : ''}>
-                            <span>${members.number_kak} - ${members.name} - ${members.escalao}</span>
+                            <input type="checkbox" name="students[]" value="${student.id}" ${selectedStudents.includes(student.id) ? 'checked' : ''}>
+                            <span>${student.number_kak ?? ''} - ${student.name ?? ''} - ${student.escalao ?? ''}</span>
                         </label>
                         <hr class="border-t border-gray-300 mt-1" style="border:1px solid #cecece">
                     </div>
                 `).join('');
             }
 
-            // Render instrutores
-            if (data.instructors.length === 0) {
+            // Instrutores
+            if (instructors.length === 0) {
                 instructorsContainer.innerHTML = '<p class="text-gray-500 text-sm">Nenhum instrutor disponível neste clube.</p>';
             } else {
-                instructorsContainer.innerHTML = data.instructors.map(instructor => `
+                instructorsContainer.innerHTML = instructors.map((instructor) => `
                     <div class="mb-1">
                         <label class="flex items-center space-x-2">
                             <input type="checkbox" name="instructors[]" value="${instructor.id}" ${selectedInstructors.includes(instructor.id) ? 'checked' : ''}>
-                            <span>${instructor.name} - ${instructor.role}</span>
+                            <span>${instructor.name ?? ''}${instructor.role ? ' - ' + instructor.role : ''}</span>
                         </label>
                         <hr class="border-t border-gray-300 mt-1" style="border:1px solid #cecece">
                     </div>
@@ -252,11 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Carregar automaticamente se já houver clube selecionado (modo edição)
     if (clubSelect.value) {
         clubSelect.dispatchEvent(new Event('change'));
     }
 });
-
-
 </script>

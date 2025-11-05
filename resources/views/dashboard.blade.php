@@ -123,26 +123,6 @@
                     </div>
                 </div>
 
-                <!-- Recent activity -->
-                <div class="bg-white rounded-lg shadow p-4">
-                    <h3 class="text-lg font-semibold">Atividades recentes</h3>
-                    <div class="mt-3 space-y-2 text-sm text-gray-600">
-                        @forelse($activities ?? [] as $a)
-                        <div class="flex items-start space-x-3">
-                            <div class="text-gray-400 text-xs mt-1">
-                                <i class="fa-solid fa-circle"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">{{ $a->title }}</div>
-                                <div class="text-xs text-gray-500">{{ $a->time }}</div>
-                            </div>
-                        </div>
-                        @empty
-                        <div class="text-gray-500">Sem atividades recentes.</div>
-                        @endforelse
-                    </div>
-                </div>
-
             </div>
 
             <!-- Right column: Billing, Memberships, Quick Actions -->

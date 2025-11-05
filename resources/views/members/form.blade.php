@@ -187,31 +187,67 @@
                 </x-card>
 
                 <x-card title="Grupos/treinamentos">
-                    <table class="w-full text-sm border">
-                        <thead>
-                            <tr class="bg-gray-100">
-                                <th>#</th>
-                                <th>Grupo</th>
-                                <th>Assinatura</th>
-                                <th>Presença</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1.</td>
-                                <td>Adultos Iniciados</td>
-                                <td>Data de início: 01/09/2022</td>
-                                <td>69%</td>
-                            </tr>
-                            <tr>
-                                <td>2.</td>
-                                <td>Adultos Intermédios e Avançados</td>
-                                <td>Data de início: 01/09/2022</td>
-                                <td>62%</td>
-                            </tr>
-                            <!-- Adicione os demais grupos conforme necessário -->
-                        </tbody>
-                    </table>
+                    @php
+                        // Usa a relação classes (Profile::classes)
+                        $classes = isset($member) ? ($member->classes ?? collect()) : collect();
+                    @endphp
+
+                    @if($classes->isEmpty())
+                        <div class="text-sm text-gray-500">Nenhuma turma associada.</div>
+                    @else
+                        <table class="w-full text-sm border">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th>#</th>
+                                    <th>Turma</th>
+                                    <th>Assinatura</th>
+                                    <th>Presença</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($classes as $class)
+                                    @php
+                                        $start = $class->pivot->started_at
+                                            ?? $class->pivot->join_date
+                                            ?? $class->pivot->created_at
+                                            ?? null;
+
+                                        $startFormatted = $start
+                                            ? \Illuminate\Support\Carbon::parse($start)->format('d/m/Y')
+                                            : null;
+
+                                        $presence = $class->pivot->attendance_percent
+                                            ?? $class->pivot->presence_percent
+                                            ?? (
+                                                isset($class->present_count, $class->total_sessions) && $class->total_sessions > 0
+                                                    ? (int) round(($class->present_count / $class->total_sessions) * 100)
+                                                    : null
+                                            );
+                                    @endphp
+                                    <tr>
+                                        <td class="text-center align-top">{{ $loop->iteration }}.</td>
+                                        <td class="align-top">
+                                            <div class="font-medium">{{ $class->name }}</div>
+                                        </td>
+                                        <td class="align-top">
+                                            @if($startFormatted)
+                                                Data de início: {{ $startFormatted }}
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                        <td class="align-top">
+                                            @if(!is_null($presence))
+                                                {{ $presence }}%
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
                 </x-card>
 
                 <x-card title="Pagamentos">

@@ -35,7 +35,7 @@ class PdfController extends Controller
             )
             ->orderBy('graduations.id')
             ->get();
-        // Dados vazios por enquanto
+        
         $member = [
             'name' => $profile->name,
             'father_name' => $profile->father_name,
@@ -71,18 +71,57 @@ class PdfController extends Controller
             'credits' => $profile->credits,
             "arbitrator" => Arbitrator::find($profile->arbitrator_id)?->name ?? 'N/A',    
             'year' => date('Y'),
-
             'last_update' => $profile->updated_at ? $profile->updated_at->format('d/m/Y') : 'N/A',
             "member_type" => $profile->user->getRoleNames()->first() ?? 'N/A',
         ];
-        //return view('pdf.member', compact('member', 'graduations'));
 
         $pdf = PDF::loadView('pdf.member', compact('member', 'graduations'));
         return $pdf->stream('member.pdf');
     }
 
-    public function classesPDF(Classe $classe){
-        $pdf = PDF::loadView('pdf.classe', compact('classe'));
-        return $pdf->stream('classe.pdf');
+    public function classesPDF(Classe $classe)
+    {
+        // Carregar relacionamentos necessários
+        $classe->load(['club', 'instructors', 'students.user', 'students.graduations', 'lessons']);
+        
+        // Calcular frequência para cada aluno
+        $totalLessons = $classe->lessons()->count();
+        
+        $studentsData = $classe->students->map(function ($student) use ($classe, $totalLessons) {
+            // Contar presenças do aluno
+            // Remover o filtro de status se a coluna não existir
+            // A existência do registro já indica presença
+            $attendances = \App\Models\Attendance::whereHas('lesson', function ($query) use ($classe) {
+                $query->where('classe_id', $classe->id);
+            })->where('student_id', $student->id)
+              ->count();
+            
+            // Calcular porcentagem
+            $percentage = $totalLessons > 0 ? round(($attendances / $totalLessons) * 100, 1) : 0;
+            
+            return [
+                'student' => $student,
+                'attendances' => $attendances,
+                'total_lessons' => $totalLessons,
+                'percentage' => $percentage
+            ];
+        });
+        
+        // Preparar dados da classe
+        $classeData = [
+            'name' => $classe->name,
+            'description' => $classe->description,
+            'club_name' => $classe->club->name ?? 'N/A',
+            'start_time' => $classe->start_time,
+            'end_time' => $classe->end_time,
+            'week_days' => is_array($classe->week_days) ? $classe->week_days : json_decode($classe->week_days, true),
+            'instructors' => $classe->instructors,
+            'students' => $classe->students,
+            'total_students' => $classe->students->count(),
+            'total_lessons' => $totalLessons,
+        ];
+        
+        $pdf = PDF::loadView('pdf.classe', compact('classeData', 'classe', 'studentsData'));
+        return $pdf->stream('classe_' . $classe->name . '.pdf');
     }
 }

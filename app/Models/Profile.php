@@ -49,6 +49,26 @@ class Profile extends Model
         return $this->belongsTo(Club::class, 'club_id', 'id');
     }
 
+    // Dojos onde o treinador pode dar treino (via pivot existente)
+    public function trainingClubs()
+    {
+        return $this->belongsToMany(Club::class, 'club_instructors', 'profile_id', 'club_id');
+    }
+
+    // Helper: checar autorização para um dojo específico
+    public function canTrainInClub(int|string $clubId): bool
+    {
+        if (!$this->is_treinador) {
+            return false;
+        }
+
+        if ((int)$this->club_id === (int)$clubId) {
+            return true;
+        }
+
+        return $this->trainingClubs()->wherePivot('club_id', $clubId)->exists();
+    }
+
     public function user(){
         return $this->hasOne(User::class, "id", "user_id");
     }
@@ -81,7 +101,15 @@ class Profile extends Model
 
     public function classes()
     {
-        return $this->belongsToMany(ClassModel::class, 'class_profile', 'profile_id', 'class_id');
+        // Relação correta: Profile -> many-to-many -> Classe (tabela pivot: class_profiles)
+        return $this->belongsToMany(Classe::class, 'class_profiles', 'profile_id', 'classe_id')
+            ->withTimestamps();
+    }
+
+    // (Opcional) se você tiver um modelo ClassProfile para a pivot e quiser acessar os registros da pivot:
+    public function classLinks()
+    {
+        return $this->hasMany(ClassProfile::class, 'profile_id', 'id');
     }
 
     public function families()
@@ -97,5 +125,14 @@ class Profile extends Model
     protected $casts = [
         'is_treinador' => 'boolean',
     ];
-    
+
+    protected static function booted()
+    {
+        static::saved(function (Profile $profile) {
+            if ($profile->wasChanged('is_treinador') && $profile->is_treinador === false) {
+                // remove todos os clubes associados como instrutor
+                $profile->trainingClubs()->detach();
+            }
+        });
+    }
 }
