@@ -42,7 +42,8 @@ class MembersController extends Controller
     {
         $clubs = \App\Models\Club::orderBy('name')->get();
         $users = \App\Models\User::orderBy('name')->get();
-        return view('members.form', compact('clubs', 'users'));
+         $families = \App\Models\Family::orderBy('name')->get();
+        return view('members.form', compact('clubs', 'users', 'families'));
     }
 
     public function edit($id)
