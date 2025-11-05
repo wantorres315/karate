@@ -40,6 +40,8 @@ class Profile extends Model
         'club_id',
         'status',
         "is_treinador",
+        "nif",
+        "belt"
     ];
 
       protected $appends = ['escalao']; 

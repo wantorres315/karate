@@ -43,6 +43,8 @@ return new class extends Migration
             $table->string("contact_email")->nullable();
             $table->text("observations")->nullable();
             $table->foreignId("club_id")->nullable()->index();
+            $table->string("nif")->nullable();
+            $table->string("belt")->nullable();
             
 
             $table->timestamps();

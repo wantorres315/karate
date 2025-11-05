@@ -194,6 +194,7 @@ class MembersController extends Controller
         'observations' => $request->observations,
         'status' => 'active',
         'club_id' => $request->club_id,
+        'belt' => $request->belt,
         
     ]);
 
@@ -240,6 +241,7 @@ public function update(Request $request, Profile $profile)
             'club_id' => 'nullable|exists:clubs,id',
             "postal_code" => 'nullable|string|max:20',
             "nif" => 'nullable|string|max:20',
+            "belt" => 'nullable|string|max:50',
         ]);
 
         $photoPath = null;
@@ -295,6 +297,7 @@ public function update(Request $request, Profile $profile)
             'photo' => $photo ?? $profile->photo,
             "postal_code" => $request->postal_code,
             "nif" => $request->nif,
+            "belt" => $request->belt,
         ]);
 
         return redirect()->route('members.edit', $profile->id)

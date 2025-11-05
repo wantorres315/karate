@@ -149,7 +149,7 @@
 
                <x-card title="Outro">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <x-input label="Tamanho do cinturão" name="bolt_size" value="{{ old('bolt_size', $member->bolt_size ?? '') }}" />
+                        <x-input label="Tamanho do cinturão" name="belt" value="{{ old('belt', $member->belt ?? '') }}" />
                     </div>
                 </x-card>
 
