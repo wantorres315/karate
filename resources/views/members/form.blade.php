@@ -91,7 +91,7 @@
                         
                         <x-input label="Nome" name="name" value="{{ old('ctl00$MainContent$FormView1$imeTextBox', $member->name ?? '') }}" />
                         <x-select label="Sexo" name="gender" :options="[['True','Masculino'],['False','Feminino'],['','Outro']]" selected="True" />
-                        <x-input label="Numero KAK" name="number_kak"  value="{{ old('number_kak', $member->number_kak ?? '') }}" :disabled="isset($member)" />
+                        <x-input label="Numero KAK" name="number_kak"  value="{{ old('number_kak', $member->number_kak ?? '') }}" :disabled="true" />
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Clube</label>
                          
