@@ -26,7 +26,7 @@ return new class extends Migration {
             $table->foreignId('profile_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
 
-            $table->unique(['class_id', 'profile_id']); // evita duplicidade
+            $table->unique(['classe_id', 'profile_id']); // evita duplicidade
         });
     }
 
