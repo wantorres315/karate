@@ -261,13 +261,12 @@
                         Devido total atual: 0,00
                     </div>
                 </x-card>
-
                 <x-card title="Família">
                     <x-select 
                         label="Família" 
                         name="family_user_id" 
                         :options="$families->map(fn($family) => [$family->id, $family->name])->prepend(['', '<Selecionar família>'])->toArray()" 
-                        selected="{{ old('family_user_id', $member->familyMember->family_id ?? '') }}" 
+                        selected="{{ old('family_user_id', $member->familyMember->family_member_id ?? '') }}" 
                     />
                 </x-card>
 

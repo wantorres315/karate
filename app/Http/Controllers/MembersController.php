@@ -198,6 +198,19 @@ class MembersController extends Controller
         
     ]);
 
+    // Família: garantir que só pertença a uma
+    if ($request->filled('family_user_id')) {
+        \DB::table('family_members')->where('profile_id', $profile->id)->delete();
+        if ($request->family_user_id) {
+            \DB::table('family_members')->insert([
+                'family_member_id' => $request->family_user_id,
+                'profile_id' => $profile->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
     // 7️⃣ Criar graduação inicial
     $graduation = Graduation::where('name', '9º KYU')->first();
     if ($graduation) {
@@ -299,6 +312,21 @@ public function update(Request $request, Profile $profile)
             "nif" => $request->nif,
             "belt" => $request->belt,
         ]);
+
+        // Família: garantir que só pertença a uma
+        if ($request->filled('family_user_id')) {
+            \DB::table('family_members')->where('profile_id', $profile->id)->delete();
+            if ($request->family_user_id) {
+                \DB::table('family_members')->insert([
+                    'family_member_id' => $request->family_user_id,
+                    'profile_id' => $profile->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        
 
         return redirect()->route('members.edit', $profile->id)
                          ->with('success', 'Usuário e perfil atualizados com sucesso!');

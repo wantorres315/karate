@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Graduações') }}
+            {{ __('Estilos') }}
         </h2>
     </x-slot>
 
@@ -18,33 +18,26 @@
                     <!-- Barra de pesquisa e botão -->
                     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                         <div class="w-full sm:w-96">
-                            <form method="GET" action="{{ route('graduations.index') }}">
-                                <input 
-                                    type="text" 
-                                    name="name"
-                                    id="searchInput"
-                                    value="{{ request('name') }}"
-                                    placeholder="Pesquisar graduações..."
-                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
-                                >
-                            </form>
+                            <input 
+                                type="text" 
+                                id="searchInput"
+                                placeholder="Pesquisar estilos..."
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
+                            >
                         </div>
-                        <a href="{{ route('graduations.create') }}" 
+                        <a href="{{ route('config.style.create') }}" 
                            class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition duration-150 ease-in-out">
                             <i class="fas fa-plus mr-2"></i>
-                            Nova Graduação
+                            Novo Estilo
                         </a>
                     </div>
 
                     <!-- Tabela -->
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="graduationsTable">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="stylesTable">
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr>
                                    
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                        Cor
-                                    </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Nome
                                     </th>
@@ -54,38 +47,23 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                @forelse($graduations as $graduation)
+                                @forelse($styles as $style)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                         
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @php
-                                            $colors = explode('_', $graduation->color);
-                                            $colors = array_map(fn($c) => strtolower(trim($c)), $colors);
-                                            $count = count($colors);
-                                            $width = 100 / $count;
-                                            @endphp
-                                            
-                                            <span style="display:inline-block; width:24px; height:24px; border-radius:50%; 
-                                                         border:2px solid #000; overflow:hidden; vertical-align:middle;">
-                                                @foreach($colors as $color)
-                                                <span style="float:left; width:{{ $width }}%; height:100%; background-color:{{ $color }};"></span>
-                                                @endforeach
-                                            </span>
-                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                                            {{ $graduation->name }}
+                                            {{ $style->name }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end gap-3">
-                                                <a href="{{ route('graduations.edit', ['graduation' => $graduation->id, 'page' => request('page')]) }}" 
+                                                <a href="{{ route('config.style.edit', $style) }}" 
                                                    class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
                                                    title="Editar">
                                                     <i class="fas fa-edit text-lg"></i>
                                                 </a>
-                                                <form action="{{ route('graduations.destroy', $graduation->id) }}" 
+                                                <form action="{{ route('config.style.destroy', $style) }}" 
                                                       method="POST" 
                                                       class="inline"
-                                                      onsubmit="return confirm('Tem certeza que deseja excluir esta graduação?');">
+                                                      onsubmit="return confirm('Tem certeza que deseja excluir este estilo?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" 
@@ -99,22 +77,15 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                        <td colspan="3" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                                             <i class="fas fa-inbox text-4xl mb-2"></i>
-                                            <p class="text-lg">Nenhuma graduação cadastrada</p>
+                                            <p class="text-lg">Nenhum estilo cadastrado</p>
                                         </td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-
-                    <!-- Paginação -->
-                    @if($graduations->hasPages())
-                        <div class="mt-6">
-                            {{ $graduations->appends(request()->query())->onEachSide(1)->links() }}
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>
@@ -124,14 +95,26 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
-            
-            // Auto-submit form on search
-            let debounceTimer;
+            const table = document.getElementById('stylesTable');
+            const tbody = table.querySelector('tbody');
+            const rows = tbody.querySelectorAll('tr');
+
             searchInput.addEventListener('keyup', function() {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    this.form.submit();
-                }, 500);
+                const searchTerm = this.value.toLowerCase();
+
+                rows.forEach(row => {
+                    // Pula a linha de "nenhum estilo cadastrado"
+                    if (row.cells.length === 1) return;
+
+                    const id = row.cells[0].textContent.toLowerCase();
+                    const name = row.cells[1].textContent.toLowerCase();
+
+                    if (id.includes(searchTerm) || name.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
             });
         });
     </script>

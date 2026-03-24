@@ -161,14 +161,17 @@
                 </div>
                 <ul class="sub-menu mt-2 ml-2 pl-8 pr-2 py-2 bg-gray-900/80 rounded-md ring-1 ring-white/10 backdrop-blur-sm space-y-1"
                     x-show="openMenu === 'menuConfigurations'" x-cloak x-transition>
-                    <li id="pojaseviaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Estilos</span></a></li>
-                    <li id="kyudanaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Graduações</span></a></li>
+                    <li id="velicineaspx"><a href="{{ route('clubs.index') }}" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Clubes</span></a></li>
+                    <li id="pojaseviaspx"><a href="{{ route('config.style.index') }}" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Estilos</span></a></li>
+                    <li id="kyudanaspx"><a href="{{route('graduations.index')}}" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Graduações</span></a></li>
                     <li id="diplomeaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Parâmetros de classificação</span></a></li>
                     <li id="rezultatiaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Sistema de cinto</span></a></li>
                     <li id="disciplineaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Categorias</span></a></li>
                     <li id="velicineaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Tipos de transações</span></a></li>
-                    Tipos de receitas
-                    Tipos de despesas
+                    <li id="velicineaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Tipos de receitas</span></a></li>
+                    <li id="velicineaspx"><a href="#" class="flex items-center px-3 py-2 rounded text-sm text-gray-200 hover:bg-white/10 hover:text-white transition"><span>Tipos de despesas</span></a></li>
+                    Tipos de 
+                    Tipos de 
                 </ul>
             </li>
 

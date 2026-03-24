@@ -17,6 +17,7 @@ use App\Http\Controllers\FamilyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\TrainerController;
+use App\Http\Controllers\StyleController;
 
 
 Route::get('/', function () {
@@ -162,10 +163,27 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-    Route::resource('trainers', TrainerController::class)->except(['show']);
-    Route::get('trainers/members', [TrainerController::class, 'members'])->name('trainers.members'); // busca membros não-treinadores
+    Route::prefix('trainers')->controller(TrainerController::class)->group(function () {
+        Route::get('/', 'index')->name('trainers.index');
+        Route::get('/create', 'create')->name('trainers.create');
+        Route::post('/', 'store')->name('trainers.store');
+        Route::get('/{trainer}/edit', 'edit')->name('trainers.edit');
+        Route::put('/{trainer}', 'update')->name('trainers.update');
+        Route::delete('/{trainer}', 'destroy')->name('trainers.destroy');
+        
+        Route::get('/members', [TrainerController::class, 'members'])->name('trainers.members'); // busca membros não-treinadores
+    });
 
-
+    Route::prefix("config")->group(function(){
+        Route::prefix("style")->controller(StyleController::class)->group(function(){
+            Route::get("/", "index")->name("config.style.index");
+            Route::get("/create", "create")->name("config.style.create");
+            Route::post("/", "store")->name("config.style.store");
+            Route::get("/{style}/edit", "edit")->name("config.style.edit");
+            Route::put("/{style}", "update")->name("config.style.update");
+            Route::delete("/{style}", "destroy")->name("config.style.destroy");
+        });
+    });
 });
 
-    require __DIR__.'/auth.php';
+require __DIR__.'/auth.php';

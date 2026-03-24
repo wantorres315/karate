@@ -1,70 +1,81 @@
 <x-app-layout>
-    <div class="p-4">
-        <!-- Botões de ação -->
-         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold">Clubes</h2>
-            <a href="{{ route('clubs.create') }}" class="px-4 py-2 bg-red-600 text-white rounded-md">
-                ➕ Adicionar Clube
+    <div class="max-w-7xl mx-auto p-4">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <h1 class="text-2xl font-semibold">Clubes</h1>
+            <a href="{{ route('clubs.create') }}" 
+               class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+                <i class="fa fa-plus"></i>
+                <span>Adicionar Clube</span>
             </a>
         </div>
-        
-        <!-- Tabela -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">#</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Nome</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Sigla</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Telefone</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Ações</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach($clubs as $club)
-                        <tr class="hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <img src="{{ asset('storage/' . $club->logo) }}" alt="Logo do Clube" class="mt-2 h-10">
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $club->name }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $club->acronym }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $club->email }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $club->cell_number ?? $club->phone_number }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if($club->status === 'active')
-                                    <span class="px-2 py-1 rounded-full text-white bg-green-600">Ativo</span>
-                                @else
-                                    <span class="px-2 py-1 rounded-full text-white bg-red-600">Inativo</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap flex gap-2">
-                                <a href="{{ route('clubs.addCoach', ['club' => $club->id, 'page' => request('page')]) }}" 
-                                   class="text-blue-600 hover:text-blue-900" title="Editar">
-                                    <i class="fa-solid fa-user-ninja" aria-hidden="true"></i>
-                                </a>
-                                <a href="{{ route('clubs.edit', ['club' => $club->id, 'page' => request('page')]) }}" 
-                                   class="text-blue-600 hover:text-blue-900" title="Editar">
-                                    <i class="fa fa-pencil" aria-hidden="true"></i>
-                                </a>
-                                <form action="{{ route('clubs.destroy', $club->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Excluir">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
 
-        <!-- Paginação -->
-        <div class="mt-4 flex justify-center">
-            {{ $clubs->appends(request()->query())->links() }}
+        <!-- Lista de clubes -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="divide-y">
+                @forelse($clubs as $club)
+                <div class="flex items-center justify-between px-4 py-4 min-h-20 hover:bg-gray-50">
+                    <div class="flex items-center gap-4 flex-1 min-w-0">
+                        <!-- Logo -->
+                        <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center shrink-0 overflow-hidden">
+                            @if($club->logo)
+                                <img src="{{ asset('storage/' . $club->logo) }}" alt="Logo" class="w-full h-full object-cover">
+                            @else
+                                <span class="text-gray-600 font-semibold">{{ mb_substr($club->name, 0, 1) }}</span>
+                            @endif
+                        </div>
+
+                        <div class="leading-relaxed min-w-0 flex-1">
+                            <div class="font-medium truncate">{{ $club->name }}</div>
+                            <div class="text-xs text-gray-500">
+                                <span>{{ $club->acronym }}</span> •
+                                <span>{{ $club->email }}</span> •
+                                <span>{{ $club->cell_number ?? $club->phone_number }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 flex-none">
+                        <!-- Status -->
+                        <div class="w-24 flex justify-end">
+                            @if($club->status === 'active')
+                                <span class="px-2 py-1 text-xs rounded-full text-white bg-green-600">Ativo</span>
+                            @else
+                                <span class="px-2 py-1 text-xs rounded-full text-white bg-red-600">Inativo</span>
+                            @endif
+                        </div>
+
+                        <!-- Ações -->
+                        <div class="flex items-center gap-3 justify-end w-28">
+                           
+                            <a href="{{ route('clubs.edit', ['club' => $club->id, 'page' => request('page')]) }}" 
+                               title="Editar" class="text-blue-600 hover:text-blue-800">
+                                <i class="fa fa-pencil"></i>
+                            </a>
+                            <form action="{{ route('clubs.destroy', $club->id) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-900" title="Excluir"
+                                        onclick="return confirm('Tem certeza que deseja excluir este clube?')">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="p-8 text-center text-gray-500">
+                    Nenhum clube encontrado.
+                </div>
+                @endforelse
+            </div>
+
+            <!-- Paginação -->
+            @if($clubs->hasPages())
+            <div class="px-4 py-3 border-t">
+                {{ $clubs->appends(request()->query())->links() }}
+            </div>
+            @endif
         </div>
     </div>
 </x-app-layout>
