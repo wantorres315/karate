@@ -28,20 +28,25 @@
 
                             <div class="flex flex-col items-center space-y-4">
                                 <!-- Foto do usuário -->
-                                @if(isset($member) && !empty($member->name))
+                                @if(isset($member) && !empty($member->photo))
+                                    <img id="photoPreview" src="{{ asset($member->photo) }}" alt="Foto do usuário"
+                                        class="rounded-full w-32 h-32 object-cover border-2 border-gray-300" />
+                                @elseif(isset($member) && !empty($member->name))
                                     @php
                                         $initials = collect(explode(' ', $member->name))->map(fn($n) => mb_substr($n,0,1))->join('');
                                     @endphp
                                     <div id="photoPreview" 
-                                         class="rounded-full w-32 h-32 flex items-center justify-center bg-gray-300 text-4xl font-bold text-gray-700 border-2 border-gray-300 select-none transition-all duration-200">
+                                        class="rounded-full w-32 h-32 flex items-center justify-center bg-gray-300 text-4xl font-bold text-gray-700 border-2 border-gray-300 select-none transition-all duration-200">
                                         {{ $initials }}
                                     </div>
                                 @else
                                     <div id="photoPreview" 
-                                         class="rounded-full w-32 h-32 flex items-center justify-center bg-gray-300 text-4xl font-bold text-gray-700 border-2 border-gray-300 select-none transition-all duration-200">
+                                        class="rounded-full w-32 h-32 flex items-center justify-center bg-gray-300 text-4xl font-bold text-gray-700 border-2 border-gray-300 select-none transition-all duration-200">
                                         ?
                                     </div>
                                 @endif
+
+                                <!-- O botão de upload/captura continua disponível para editar a foto -->
 
                                 <!-- Container da câmera (começa escondido) -->
                                 <div id="cameraContainer" class="hidden">
@@ -180,12 +185,21 @@
                 </x-card>
 
                 <x-card title="Cintos">
-                    <ul class="list-disc pl-5">
-                        <li>Branco - 9º Kyu <span class="text-xs text-gray-500">20/10/2001</span></li>
-                        <li>Adultos Amarelo - 8º Kyu <span class="text-xs text-gray-500">07/07/2002</span></li>
-                    </ul>
+                    @if(isset($member) && $member->graduations->count())
+                        <ul class="list-disc pl-5">
+                            @foreach($member->graduations as $graduation)
+                                <li>
+                                    {{ $graduation->graduation->name ?? 'Sem nome' }}
+                                    <span class="text-xs text-gray-500">
+                                        {{ $graduation->date ? \Illuminate\Support\Carbon::parse($graduation->date)->format('d/m/Y') : '' }}
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <div class="text-sm text-gray-500">Nenhum cinto registrado.</div>
+                    @endif
                 </x-card>
-
                 <x-card title="Grupos/treinamentos">
                     @php
                         // Usa a relação classes (Profile::classes)
@@ -200,7 +214,7 @@
                                 <tr class="bg-gray-100">
                                     <th>#</th>
                                     <th>Turma</th>
-                                    <th>Assinatura</th>
+                                    <th>Data de Inicio</th>
                                     <th>Presença</th>
                                 </tr>
                             </thead>
@@ -221,22 +235,22 @@
                                             ?? (
                                                 isset($class->present_count, $class->total_sessions) && $class->total_sessions > 0
                                                     ? (int) round(($class->present_count / $class->total_sessions) * 100)
-                                                    : null
+                                                    : "0"
                                             );
                                     @endphp
                                     <tr>
                                         <td class="text-center align-top">{{ $loop->iteration }}.</td>
-                                        <td class="align-top">
+                                        <td class="text-center align-top">
                                             <div class="font-medium">{{ $class->name }}</div>
                                         </td>
-                                        <td class="align-top">
+                                        <td class="text-center align-top">
                                             @if($startFormatted)
                                                 Data de início: {{ $startFormatted }}
                                             @else
                                                 —
                                             @endif
                                         </td>
-                                        <td class="align-top">
+                                        <td class="text-center align-top">
                                             @if(!is_null($presence))
                                                 {{ $presence }}%
                                             @else
